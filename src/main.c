@@ -1,6 +1,10 @@
 //Includes here
+#include "include/initialise.h"
 
-int main(void)
+// Use this as our "int main(void)" replacement.
+int line_following_robot(void)
 {
+    initialise();
+
     return 0;
 }
