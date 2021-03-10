@@ -10,6 +10,9 @@
 Provide a uint8_t array filled with the pin numbers
 for the leds in ascending order from led0.
 The array led_pins will be copied.
+
+The pin numbers should be what is defined by
+JDLuck's Arduino port.
 */
 void led_init(uint8_t* led_pins);
 
