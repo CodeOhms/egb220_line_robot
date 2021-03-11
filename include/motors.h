@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#include "include/peripherals.h"
+#include "peripherals.h"
 
 
 enum motor_direction
@@ -42,5 +42,6 @@ a duty cycle.
 */
 void motor_move_direct(float speed, enum motor_direction direction, int enable_pin, int phase_pin);
 
+void motor_move(float speed, enum motor_direction direction, enum motors motor);
 
 #endif //MOTORS_H

@@ -1,15 +1,60 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "PlatformIO",
             "includePath": [
-                "${workspaceFolder}/**"
+                "/home/codeohms/Documents/uni/study_files/year2/sem1/egb220/robot_project/git_robot/include",
+                "/home/codeohms/Documents/uni/study_files/year2/sem1/egb220/robot_project/git_robot/src",
+                "/home/codeohms/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "/home/codeohms/.platformio/packages/framework-arduino-avr/variants/jdluck_spark",
+                "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                ""
             ],
-            "defines": [],
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "gnu17",
-            "cppStandard": "gnu++14",
-            "intelliSenseMode": "linux-gcc-x64"
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/home/codeohms/Documents/uni/study_files/year2/sem1/egb220/robot_project/git_robot/include",
+                    "/home/codeohms/Documents/uni/study_files/year2/sem1/egb220/robot_project/git_robot/src",
+                    "/home/codeohms/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "/home/codeohms/.platformio/packages/framework-arduino-avr/variants/jdluck_spark",
+                    "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=50100",
+                "ARDUINO_AVR_PROMICRO16",
+                "ENV_ARDUINO=1",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "USB_VID=0x1B4F",
+                "USB_PID=0x9206",
+                "USB_PRODUCT=\"JDLuck Spark Mark II\"",
+                "USB_MANUFACTURER=\"JDLuck\"",
+                "__AVR_ATmega32U4__",
+                ""
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "compilerPath": "/home/codeohms/.platformio/packages/toolchain-atmelavr/bin/avr-gcc",
+            "compilerArgs": [
+                "-mmcu=atmega32u4",
+                ""
+            ]
         }
     ],
     "version": 4

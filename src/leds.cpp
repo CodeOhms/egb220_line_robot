@@ -1,4 +1,4 @@
-#include "include/leds.h"
+#include "leds.h"
 
 
 uint8_t _num_pins = 0;
@@ -8,7 +8,7 @@ void led_init(uint8_t* led_pins)
 {
     // Allocate dynamic memory for led_pins 'array'.
     _num_pins = sizeof(led_pins)/sizeof(uint8_t);
-    _led_pins = malloc(sizeof(led_pins));
+    _led_pins = (uint8_t*) malloc(sizeof(led_pins));
 
     // Copy the array into led_pins.
     for(uint8_t i = 0; i < _num_pins; ++i)
@@ -36,7 +36,7 @@ void led_close()
     _num_pins = 0;
 }
 
-int led_exists(uint8_t led_index)
+uint8_t led_exists(uint8_t led_index)
 {
     if(led_index > _num_pins -1)
     { // Led out of range!
@@ -48,9 +48,9 @@ int led_exists(uint8_t led_index)
     }
 }
 
-int led_enable(uint8_t led_index)
+uint8_t led_enable(uint8_t led_index)
 {
-    if(!led_exists())
+    if(!led_exists(led_index))
     {
         return 0;
     }
@@ -62,9 +62,9 @@ int led_enable(uint8_t led_index)
     return 0; // Something went wrong.
 }
 
-int led_toggle(uint8_t led_index)
+uint8_t led_toggle(uint8_t led_index)
 {
-    if(!led_exists())
+    if(!led_exists(led_index))
     {
         return 0;
     }
@@ -86,12 +86,12 @@ int led_toggle(uint8_t led_index)
 //     digitalWrite(_led_pins[led_id], !digitalRead(_led_pins[led_id]));
 // }
 
-void led_builtin_enable(enum leds led_id)
+uint8_t led_builtin_enable(enum leds led_id)
 {
-    led_enable((uint8_t) led_id);
+    return led_enable((uint8_t) led_id);
 }
 
-void led_builtin_toggle(enum leds led_id)
+uint8_t led_builtin_toggle(enum leds led_id)
 {
-    led_toggle((uint8_t) led_id);
+    return led_toggle((uint8_t) led_id);
 }

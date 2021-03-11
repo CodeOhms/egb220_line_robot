@@ -1,9 +1,9 @@
-#include "include/motors.h"
+#include "motors.h"
 
 
 // 0th index is for phase and 1st index is for enable pin on H bridge.
-uint8_t _motor_l_pins[2] = 0;
-uint8_t _motor_r_pins[2] = 0;
+uint8_t _motor_l_pins[2];
+uint8_t _motor_r_pins[2];
 
 void motor_init(uint8_t* motor_l_pins, uint8_t* motor_r_pins)
 {
@@ -32,7 +32,7 @@ void motor_close()
 
 uint8_t speed_to_pwm_value(float speed)
 {
-    if(!(speed >= 0 && speed =< 100))
+    if(!(speed >= 0.0 && speed <= 100.0))
     {
         return 0;
     }
@@ -77,10 +77,10 @@ void motor_move_direct(float speed, enum motor_direction direction, int enable_p
     analogWrite(enable_pin, speed_conv);
 }
 
-void motor_move(float speed, enum motor_direction direction, enum motors)
+void motor_move(float speed, enum motor_direction direction, enum motors motor)
 {
     uint8_t* motor_selected = 0;
-    switch(motors)
+    switch(motor)
     {
         case motor_left:
             motor_selected = _motor_l_pins;

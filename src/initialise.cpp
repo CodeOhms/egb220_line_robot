@@ -1,8 +1,10 @@
-#include "include/initialise.h"
+#include "initialise.h"
 
 #ifdef    ENV_ARDUINO
 #include <Arduino.h>
-#include "include/main.h"
+#include "main.h"
+#include "leds.h"
+#include "motors.h"
 
 void setup(void)
 {
@@ -16,10 +18,10 @@ void initialise(void)
     led_init(led_pins);
 
     // Set up motors.
-    uint8_t motor_l_pins[2] = { PB0, OC0A }; // Motor A.
-    uint8_t motor_r_pins[2] = { PE6, OC0B }; // Motor B.
-    // NOTE: seems like led1 is tied to motor A and led0 is tied to B...
-    motor_init(moto_l_pins, motor_r_pins);
+    uint8_t motor_l_pins[2] = { PB0, PB7 }; // Motor A.
+    uint8_t motor_r_pins[2] = { PE6, PD0 }; // Motor B.
+    // NOTE: seems like there are leds tied to each pin controlling the H bridge...
+    motor_init(motor_l_pins, motor_r_pins);
 }
 
 /*

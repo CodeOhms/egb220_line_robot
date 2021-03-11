@@ -18,7 +18,7 @@ enum motors
 {
     motor_left,
     motor_right
-}
+};
 
 
 #endif //PERIPHERALS
