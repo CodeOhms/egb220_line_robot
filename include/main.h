@@ -3,7 +3,7 @@
 
 
 #ifdef   ENV_ARDUINO
-int line_following_robot(void);
+void line_following_robot(void);
 #endif //ENV_ARDUINO
 
 
