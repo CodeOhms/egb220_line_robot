@@ -6,17 +6,24 @@
   
 int main(void)
 {
-    DDRC |= (1<<0);            // initialize port C
+    DDRB |= (1<<0);            // initialize port B
     while(1)
     {
 
     // clockwise rotation
-    PORTC = (1<<0) | (1<<2); // set PORTC = 0b00000101;
-    _delay_ms(500);         // wait 0.5s
+    PORTB = ((1<<0) | (1<<2)); // set PORTB = 0b00000101;
+							   // set pin 0 to 1
+							   // set pin 2 to 1
+    _delay_ms(500);            // wait 0.5s
   
+	PORTB &= ~((1<<0) | (1<<2)); // clear bits
 
     // anti-clockwise rotation
-    PORTC = (1<<1) | (1<<4); // set PORTC = 0b00001010;
-    _delay_ms(500);         // wait 0.5s
+    PORTB = ((1<<1) | (1<<3)); // set PORTB = 0b00001010;
+	  						   // set pin 1 to 1
+	  						   // set pin 3 to 1
+    _delay_ms(500);            // wait 0.5s
+
+	PORTB &= ~((1<<1) | (1<<3)); // clear bits
     }
 }
