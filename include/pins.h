@@ -15,12 +15,12 @@ enum pins_mcu
     PB_Pin6,
     PB_Pin7,
     // Port C:
-    PC_Pin0,
-    PC_Pin1,
-    PC_Pin2,
-    PC_Pin3,
-    PC_Pin4,
-    PC_Pin5,
+    PC_Pin0, // Doesn't exist.
+    PC_Pin1, // Doesn't exist.
+    PC_Pin2, // Doesn't exist.
+    PC_Pin3, // Doesn't exist.
+    PC_Pin4, // Doesn't exist.
+    PC_Pin5, // Doesn't exist.
     PC_Pin6,
     PC_Pin7,
     // Port D:
@@ -33,19 +33,19 @@ enum pins_mcu
     PD_Pin6,
     PD_Pin7,
     // Port E:
-    PE_Pin0,
-    PE_Pin1,
+    PE_Pin0, // Doesn't exist.
+    PE_Pin1, // Doesn't exist.
     PE_Pin2,
-    PE_Pin3,
-    PE_Pin4,
-    PE_Pin5,
+    PE_Pin3, // Doesn't exist.
+    PE_Pin4, // Doesn't exist.
+    PE_Pin5, // Doesn't exist.
     PE_Pin6,
-    PE_Pin7,
+    PE_Pin7, // Doesn't exist.
     // Port F:
     PF_Pin0,
     PF_Pin1,
-    PF_Pin2,
-    PF_Pin3,
+    PF_Pin2, // Doesn't exist.
+    PF_Pin3, // Doesn't exist.
     PF_Pin4,
     PF_Pin5,
     PF_Pin6,
@@ -78,9 +78,54 @@ uint8_t resolve_pin_offset(enum pins_mcu pin_mcu);
 
 
 #if ENV_ARDUINO == 1
-uint8_t pin_numbers[]
+uint8_t pin_numbers_digital[]
 {
-    // TODO: fill this out with the pin numbers!!!
+    // TODO: fill this out with the Arduino pin numbers!!!
+    // Port B
+    17,
+    15,
+    16,
+    14,
+    8,
+    9,
+    10,
+    11,
+    // Port C
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5,
+    13,
+    // Port D
+    3,
+    2,
+    0,
+    1,
+    4,
+    30,
+    12,
+    6,
+    // Port E
+    0,
+    0,
+    HWB,
+    0,
+    0,
+    0,
+    7,
+    0,
+    // Port F
+    23,
+    22,
+    0,
+    0,
+    21,
+    20,
+    19,
+    18
 };
 
 uint8_t resolve_pin_num(enum pins_mcu pin_mcu);

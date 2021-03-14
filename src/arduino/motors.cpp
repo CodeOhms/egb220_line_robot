@@ -9,13 +9,13 @@
 uint8_t _motor_l_pins[MOTORS_NUM];
 uint8_t _motor_r_pins[MOTORS_NUM];
 
-void motor_init(uint8_t* motor_l_pins, uint8_t* motor_r_pins)
+void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
 {
-    // Copy the arrays.
+    // Resolve the pin Arduino numbers.
     for(uint8_t i = 0; i < MOTORS_NUM; ++i)
     {
-        _motor_l_pins[i] = motor_l_pins[i];
-        _motor_r_pins[i] = motor_r_pins[i];
+        _motor_l_pins[i] = resolve_pin_num(motor_l_pins[i]);
+        _motor_r_pins[i] = resolve_pin_num(motor_r_pins[i]);
     }
 
     // Setup output pins for controlling the motors.
