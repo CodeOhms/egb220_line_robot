@@ -37,7 +37,8 @@
             "defines": [
                 "PLATFORMIO=50100",
                 "ARDUINO_AVR_PROMICRO16",
-                "ENV_ARDUINO=1",
+                "ENV_ARDUINO=0",
+                "ENV_AVR=1",
                 "F_CPU=16000000L",
                 "ARDUINO_ARCH_AVR",
                 "ARDUINO=10808",

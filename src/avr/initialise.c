@@ -1,15 +1,10 @@
-#include "initialise.h"
+#if ENV_AVR == 1
 
-#ifdef    ENV_ARDUINO
-#include <Arduino.h>
+#include "initialise.h"
 #include "main.h"
 #include "leds.h"
 #include "motors.h"
 
-void setup(void)
-{
-    // Leave this empty so we can use the 'initialise(void)' function instead.
-}
 
 void initialise(void)
 {
@@ -22,25 +17,6 @@ void initialise(void)
     uint8_t motor_r_pins[2] = { PE6, PD0 }; // Motor B.
     // NOTE: seems like there are leds tied to each pin controlling the H bridge...
     motor_init(motor_l_pins, motor_r_pins);
-}
-
-/*
-Have this function pass control over to 'line_following_robot(void)' function.
-This function should never pass control back.
-*/
-void loop(void)
-{
-    line_following_robot();
-}
-
-#endif //ENV_ARDUINO
-
-
-#ifdef   ENV_AVR
-
-void initialise(void)
-{
-
 }
 
 #endif //ENV_AVR
