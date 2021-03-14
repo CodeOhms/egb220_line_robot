@@ -1,14 +1,18 @@
+#if ENV_ARDUINO == 1
+
+#include <Arduino.h>
+
 #include "motors.h"
 
 
 // 0th index is for phase and 1st index is for enable pin on H bridge.
-uint8_t _motor_l_pins[2];
-uint8_t _motor_r_pins[2];
+uint8_t _motor_l_pins[MOTORS_NUM];
+uint8_t _motor_r_pins[MOTORS_NUM];
 
 void motor_init(uint8_t* motor_l_pins, uint8_t* motor_r_pins)
 {
     // Copy the arrays.
-    for(uint8_t i = 0; i < 2; ++i)
+    for(uint8_t i = 0; i < MOTORS_NUM; ++i)
     {
         _motor_l_pins[i] = motor_l_pins[i];
         _motor_r_pins[i] = motor_r_pins[i];
@@ -25,7 +29,7 @@ void motor_init(uint8_t* motor_l_pins, uint8_t* motor_r_pins)
 void motor_close()
 {
     // Clear the arrays.
-    for(uint8_t i = 0; i < 2; ++i)
+    for(uint8_t i = 0; i < MOTORS_NUM; ++i)
     {
         _motor_l_pins[i] = 0;
         _motor_r_pins[i] = 0;
@@ -40,7 +44,7 @@ uint8_t speed_to_pwm_value(float speed)
     }
 
     //100%:255 divide both by 100 --> 1%:2.55. Conv to int is needed.
-    uint8_t speed_conv = speed * 2.55; // Will concatenate.
+    uint8_t speed_conv = speed * 2.55; // Will truncate.
 
     return speed_conv;
 }
@@ -93,5 +97,7 @@ void motor_move(float speed, enum motor_direction direction, enum motors motor)
             break;
     }
 
-    motor_move_direct(speed, direction, motor_selected[1], motor_selected[0]);
+    motor_move_direct(speed, direction, motor_selected[0], motor_selected[1]);
 }
+
+#endif //ENV_ARDUINO

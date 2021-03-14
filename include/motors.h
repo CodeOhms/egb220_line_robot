@@ -1,10 +1,10 @@
 #ifndef   MOTORS_H
 #define   MOTORS_H
 
-#include <Arduino.h>
-
+#include "pins.h"
 #include "peripherals.h"
 
+#define MOTORS_NUM 2
 
 enum motor_direction
 {
@@ -31,16 +31,32 @@ meaning the H bridge operates in PHASE/ENABLE mode.
 H Bridge datasheet: https://www.ti.com/product/DRV8835?HQS=TI-null-null-octopart-df-pf-null-wwe
 Additional explaination of H bridge: https://www.pololu.com/product/2753
 */
-void motor_init(uint8_t* motor_l_pins, uint8_t* motor_r_pins);
+// void motor_init(uint8_t* motor_l_pins, uint8_t* motor_r_pins);
+void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins);
 
 void motor_close();
 
+#if ENV_ARDUINO == 1
 /*
 Uses analogWrite() from Arduino, which writes out a square wave,
 for pwm. This function uses a unit8_t (0 to 255) to specify
 a duty cycle.
 */
-void motor_move_direct(float speed, enum motor_direction direction, int enable_pin, int phase_pin);
+void motor_move_direct(float speed, enum motor_direction direction, uint8_t enable_pin, uint8_t phase_pin);
+#endif //ENV_ARDUINO
+
+#if ENV_AVR == 1
+struct _motor_info
+{
+    enum motors motor_selected;
+
+    uint8_t* port_reg[2];
+    uint8_t* direction_reg[2];
+    uint8_t pins_offset[2]; // E.G. offset 6 with port E = PE_Pin6.
+};
+
+void motor_move_direct(float speed, enum motor_direction direction, struct _motor_pins_info motor_pins);
+#endif //ENV_AVR
 
 void motor_move(float speed, enum motor_direction direction, enum motors motor);
 

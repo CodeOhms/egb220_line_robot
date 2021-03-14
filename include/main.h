@@ -2,7 +2,7 @@
 #define  MAIN_H
 
 
-#ifdef   ENV_ARDUINO
+#if ENV_ARDUINO == 1
 void line_following_robot(void);
 #endif //ENV_ARDUINO
 
