@@ -16,6 +16,8 @@ void motor_init(uint8_t* motor_l_pins, uint8_t* motor_r_pins)
 
     // Setup output pins for controlling the motors.
         // Do not need to setup the pins for output mode if using analogWrite().
+    pinMode(_motor_l_pins[0], OUTPUT);
+    pinMode(_motor_r_pins[0], OUTPUT);
     pinMode(_motor_l_pins[1], OUTPUT);
     pinMode(_motor_r_pins[1], OUTPUT);
 }

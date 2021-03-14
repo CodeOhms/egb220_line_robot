@@ -17,6 +17,7 @@
                 "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                 "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
                 "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                "/home/codeohms/.platformio/packages/tool-unity",
                 ""
             ],
             "browse": {
@@ -31,6 +32,7 @@
                     "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                     "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
                     "/home/codeohms/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    "/home/codeohms/.platformio/packages/tool-unity",
                     ""
                 ]
             },
