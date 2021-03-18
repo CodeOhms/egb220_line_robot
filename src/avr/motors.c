@@ -21,14 +21,14 @@ void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
         // Port registers:
     for(uint8_t i = 0; i < MOTORS_NUM; ++i)
     {
-        _motor_l.port_reg[i] = resolve_port_reg(motor_l_pins[i]);
-        _motor_r.port_reg[i] = resolve_port_reg(motor_r_pins[i]);
+        _motor_l.port_regs[i] = resolve_port_reg(motor_l_pins[i]);
+        _motor_r.port_regs[i] = resolve_port_reg(motor_r_pins[i]);
     }
         // Direction registers:
     for(uint8_t i = 0; i < MOTORS_NUM; ++i)
     {
-        _motor_l.direction_reg[i] = resolve_direction_reg(motor_l_pins[i]);
-        _motor_r.direction_reg[i] = resolve_direction_reg(motor_r_pins[i]);
+        _motor_l.direction_regs[i] = resolve_direction_reg(motor_l_pins[i]);
+        _motor_r.direction_regs[i] = resolve_direction_reg(motor_r_pins[i]);
     }
 
     // Setup the pin numbering offsets.
@@ -36,6 +36,18 @@ void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
     {
         _motor_l.pins_offset[i] = resolve_pin_offset(motor_l_pins[i]);
         _motor_r.pins_offset[i] = resolve_pin_offset(motor_r_pins[i]);
+    }
+
+    // Setup control pins as outputs.
+    for(uint8_t i = 0; HBRIDGE_PINS_PER_M; ++i)
+    {
+        uint8_t offset = _motor_l.pins_offset[i];
+        *(_motor_l.direction_regs[i]) |= (1<<offset);
+    }
+    for(uint8_t i = 0; HBRIDGE_PINS_PER_M; ++i)
+    {
+        uint8_t offset = _motor_r.pins_offset[i];
+        *(_motor_r.direction_regs[i]) |= (1<<offset);
     }
 }
 
@@ -61,25 +73,33 @@ void motor_move_direct(float speed, enum motor_direction direction, struct _moto
 {
     // Convert speed between 0 to 100% to between 0 to 255.
     uint8_t speed_conv = speed_to_pwm_value(speed);
-    uint8_t rot_dir;
+
+    // Retrieve the variables needed from the motor_pins.
+    uint8_t* port_regs[HBRIDGE_PINS_PER_M]  = motor_pins.port_regs;
+    uint8_t pins_offset[HBRIDGE_PINS_PER_M] = motor_pins.pins_offset;
 
     switch(direction)
     {
         case forward:
-            rot_dir = 0;
+            // Set phase pin low.
+            *(port_regs[PHASE]) &= ~(1<<pins_offset[PHASE]);
             break;
         
         case reverse:
-            rot_dir = 1;
+            // Set phase pin high.
+            *(port_regs[PHASE]) |= (1<<pins_offset[PHASE]);
             break;
         
         case stop:
-            rot_dir = 0;
+            // Set phase pin low, and use a duty cycle of 0%.
+            *(port_regs[PHASE]) &= ~(1<<pins_offset[PHASE]);
             speed_conv = 0;
             break;
 
         default:
-            rot_dir = 0;
+            // Something went VERY WRONG.
+            //TODO: deal with this going wrong HIGH PRIORITY.
+            *(port_regs[PHASE]) &= ~(1<<pins_offset[PHASE]);
             speed_conv = 0;
             break;
     }
@@ -87,6 +107,7 @@ void motor_move_direct(float speed, enum motor_direction direction, struct _moto
     // Activate motor.
         // Set direction.
         // TODO: finish implementation of motor running code!
+    
     // digitalWrite(phase_pin, rot_dir);
         // Setup pwm signal.
     // analogWrite(enable_pin, speed_conv);

@@ -5,6 +5,9 @@
 #include "peripherals.h"
 
 #define MOTORS_NUM 2
+#define HBRIDGE_PINS_PER_M 2
+#define PHASE 0
+#define ENABLE 1
 
 enum motor_direction
 {
@@ -50,12 +53,12 @@ struct _motor_info
 {
     enum motors motor_selected;
 
-    uint8_t* port_reg[2];
-    uint8_t* direction_reg[2];
-    uint8_t pins_offset[2]; // E.G. offset 6 with port E = PE_Pin6.
+    uint8_t* port_regs[HBRIDGE_PINS_PER_M];
+    uint8_t* direction_regs[HBRIDGE_PINS_PER_M];
+    uint8_t pins_offset[HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E = PE_Pin6.
 };
 
-void motor_move_direct(float speed, enum motor_direction direction, struct _motor_pins_info motor_pins);
+void motor_move_direct(float speed, enum motor_direction direction, struct _motor_info motor_pins);
 #endif //ENV_AVR
 
 void motor_move(float speed, enum motor_direction direction, enum motors motor);
