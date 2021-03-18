@@ -1,4 +1,4 @@
-#if ENV_ARDUINO == 1
+#ifdef ENV_ARDUINO
 
 #include <Arduino.h>
 
@@ -12,7 +12,7 @@ uint8_t _motor_r_pins[MOTORS_NUM];
 void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
 {
     // Resolve the pin Arduino numbers.
-    for(uint8_t i = 0; i < MOTORS_NUM; ++i)
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
     {
         _motor_l_pins[i] = resolve_pin_num(motor_l_pins[i]);
         _motor_r_pins[i] = resolve_pin_num(motor_r_pins[i]);
@@ -28,8 +28,14 @@ void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
 
 void motor_close()
 {
+    // Turn off motors.
+    analogWrite(_motor_l_pins[ENABLE], 0);
+    analogWrite(_motor_r_pins[ENABLE], 0);
+    digitalWrite(_motor_l_pins[PHASE], LOW);
+    digitalWrite(_motor_r_pins[PHASE], LOW);
+
     // Clear the arrays.
-    for(uint8_t i = 0; i < MOTORS_NUM; ++i)
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
     {
         _motor_l_pins[i] = 0;
         _motor_r_pins[i] = 0;

@@ -1,4 +1,4 @@
-#if ENV_AVR == 1
+#ifdef ENV_AVR
 
 #include "pins.h"
 

@@ -2,7 +2,6 @@
 #define   LEDS_H
 
 #include <stdint.h>
-#include <Arduino.h>
 
 #include "peripherals.h"
 

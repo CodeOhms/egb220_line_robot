@@ -1,9 +1,6 @@
-#include <Arduino.h>
+#include <avr/io.h>
 
 #include "leds.h"
-
-uint8_t _num_pins = 0;
-uint8_t* _led_pins = 0;
 
 void led_init(uint8_t* led_pins)
 {

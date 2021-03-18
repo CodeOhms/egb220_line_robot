@@ -39,7 +39,7 @@ void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins);
 
 void motor_close();
 
-#if ENV_ARDUINO == 1
+#ifdef ENV_ARDUINO
 /*
 Uses analogWrite() from Arduino, which writes out a square wave,
 for pwm. This function uses a unit8_t (0 to 255) to specify
@@ -48,7 +48,7 @@ a duty cycle.
 void motor_move_direct(float speed, enum motor_direction direction, uint8_t enable_pin, uint8_t phase_pin);
 #endif //ENV_ARDUINO
 
-#if ENV_AVR == 1
+#ifdef ENV_AVR
 struct _motor_info
 {
     enum motors motor_selected;

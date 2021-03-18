@@ -1,13 +1,11 @@
 #ifndef  MAIN_H
 #define  MAIN_H
 
-
-#if ENV_ARDUINO == 1
+#ifdef ENV_ARDUINO
 void line_following_robot(void);
 #endif //ENV_ARDUINO
 
-
-#if ENV_AVR == 1
+#ifdef ENV_AVR
 int main(void)
 {
     line_following_robot();
@@ -15,6 +13,5 @@ int main(void)
     return 0;
 }
 #endif //ENV_AVR
-
 
 #endif //MAIN_H

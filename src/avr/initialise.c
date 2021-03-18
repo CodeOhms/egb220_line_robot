@@ -1,8 +1,10 @@
-#if ENV_AVR == 1
+#ifdef ENV_AVR
 
 #include "initialise.h"
 #include "main.h"
 #include "pins.h"
+#include "interrupts.h"
+#include "fast_pwm.h"
 #include "leds.h"
 #include "motors.h"
 
@@ -10,6 +12,10 @@
 void initialise(void)
 {
     pins_mcu_init();
+
+    // Set up interrupts and pwm.
+    interrupts_init();
+    fast_pwm_init();
 
     // Set up leds.
     enum pins_mcu led_pins[8] = { PE_Pin6, PB_Pin0, PB_Pin1, PB_Pin2, PB_Pin7, PD_Pin0, PB_Pin6, PB_Pin5 };

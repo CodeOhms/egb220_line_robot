@@ -1,16 +1,9 @@
-#if ENV_AVR == 1
+#ifdef ENV_AVR
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 #include "motors.h"
-
-// 0th index is for phase and 1st index is for enable pin on H bridge!
-// uint8_t* _motor_l_pins_port_reg[MOTORS_NUM];
-// uint8_t* _motor_l_pins_direction_reg[MOTORS_NUM];
-// uint8_t* _motor_r_pins_port_reg[MOTORS_NUM];
-// uint8_t* _motor_r_pins_direction_reg[MOTORS_NUM];
-// uint8_t _motor_l_pins_offset[MOTORS_NUM];
-// uint8_t _motor_r_pins_offset[MOTORS_NUM];
 
 struct _motor_info _motor_l;
 struct _motor_info _motor_r;
@@ -19,41 +12,83 @@ void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
 {
     // Resolve registers.
         // Port registers:
-    for(uint8_t i = 0; i < MOTORS_NUM; ++i)
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
     {
         _motor_l.port_regs[i] = resolve_port_reg(motor_l_pins[i]);
         _motor_r.port_regs[i] = resolve_port_reg(motor_r_pins[i]);
     }
         // Direction registers:
-    for(uint8_t i = 0; i < MOTORS_NUM; ++i)
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
     {
         _motor_l.direction_regs[i] = resolve_direction_reg(motor_l_pins[i]);
         _motor_r.direction_regs[i] = resolve_direction_reg(motor_r_pins[i]);
     }
 
-    // Setup the pin numbering offsets.
-    for(uint8_t i = 0; i < MOTORS_NUM; ++i)
+    // Set up the pin numbering offsets.
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
     {
         _motor_l.pins_offset[i] = resolve_pin_offset(motor_l_pins[i]);
         _motor_r.pins_offset[i] = resolve_pin_offset(motor_r_pins[i]);
     }
 
-    // Setup control pins as outputs.
+    // Set up control pins as outputs.
     for(uint8_t i = 0; HBRIDGE_PINS_PER_M; ++i)
     {
         uint8_t offset = _motor_l.pins_offset[i];
         *(_motor_l.direction_regs[i]) |= (1<<offset);
-    }
-    for(uint8_t i = 0; HBRIDGE_PINS_PER_M; ++i)
-    {
-        uint8_t offset = _motor_r.pins_offset[i];
+
+        offset = _motor_r.pins_offset[i];
         *(_motor_r.direction_regs[i]) |= (1<<offset);
     }
+
+    // Set up pwm functions for each motor.
+        // FIXME: set up pwm functions for each motor.
+    
 }
 
 void motor_close()
 {
+    // Turn off the motors.
+        // Set both the phase and enable pins low.
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
+    {
+        uint8_t offset = _motor_l.pins_offset[i];
+        *(_motor_l.port_regs[i]) &= ~(1<<offset);
 
+        offset = _motor_r.pins_offset[i];
+        *(_motor_r.port_regs[i]) &= ~(1<<offset);
+    }
+
+    // Clear the data.
+        // Port registers:
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
+    {
+        _motor_l.port_regs[i] = 0;
+        _motor_r.port_regs[i] = 0;
+    }
+        // Direction registers:
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
+    {
+        _motor_l.direction_regs[i] = 0;
+        _motor_r.direction_regs[i] = 0;
+    }
+
+        // Pin numbering offsets:
+    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
+    {
+        _motor_l.pins_offset[i] = 0;
+        _motor_r.pins_offset[i] = 0;
+    }
+
+    // Reset control pins.
+    for(uint8_t i = 0; HBRIDGE_PINS_PER_M; ++i)
+    {
+        uint8_t offset = _motor_l.pins_offset[i];
+        *(_motor_l.direction_regs[i]) &= ~(1<<offset);
+
+        offset = _motor_r.pins_offset[i];
+        *(_motor_r.direction_regs[i]) &= ~(1<<offset);
+    }
 }
 
 uint8_t speed_to_pwm_value(float speed)
@@ -78,6 +113,7 @@ void motor_move_direct(float speed, enum motor_direction direction, struct _moto
     uint8_t* port_regs[HBRIDGE_PINS_PER_M]  = motor_pins.port_regs;
     uint8_t pins_offset[HBRIDGE_PINS_PER_M] = motor_pins.pins_offset;
 
+    // Activate motor.
     switch(direction)
     {
         case forward:
@@ -98,19 +134,15 @@ void motor_move_direct(float speed, enum motor_direction direction, struct _moto
 
         default:
             // Something went VERY WRONG.
-            //TODO: deal with this going wrong HIGH PRIORITY.
+            // TODO: deal with this going wrong HIGH PRIORITY.
             *(port_regs[PHASE]) &= ~(1<<pins_offset[PHASE]);
             speed_conv = 0;
             break;
     }
 
-    // Activate motor.
-        // Set direction.
-        // TODO: finish implementation of motor running code!
-    
-    // digitalWrite(phase_pin, rot_dir);
-        // Setup pwm signal.
+    // Setup pwm signal.
     // analogWrite(enable_pin, speed_conv);
+    //FIXME: set up pwm signal for given motor.
 }
 
 void motor_move(float speed, enum motor_direction direction, enum motors motor)

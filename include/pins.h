@@ -52,7 +52,7 @@ enum pins_mcu
     PF_Pin7,
 };
 
-#if ENV_AVR == 1
+#ifdef ENV_AVR
 #include <avr/io.h>
 
 uint8_t* port_registers[5];
@@ -77,7 +77,7 @@ uint8_t resolve_pin_offset(enum pins_mcu pin_mcu);
 #endif //ENV_AVR
 
 
-#if ENV_ARDUINO == 1
+#ifdef ENV_ARDUINO
 uint8_t pin_numbers_digital[]
 {
     // TODO: fill this out with the Arduino pin numbers!!!
