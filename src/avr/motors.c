@@ -8,6 +8,12 @@
 struct _motor_info _motor_l;
 struct _motor_info _motor_r;
 
+/*
+Callback function that is given to the fast pwm ISR.
+Responsible for toggling the enable pin, for enabled
+motors, to generate a PWM signal.
+*/
+
 void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
 {
     // Resolve registers.

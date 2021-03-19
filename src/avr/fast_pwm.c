@@ -53,6 +53,26 @@ void fast_pwm_close()
     free(_user_functions_enabled);
 }
 
+uint8_t fast_pwm_set_data(uint8_t counter_index, uint8_t counter_limit,
+                       func_ptr_rvoid_t function,
+                       uint8_t function_enabled)
+{
+    if(counter_index < 0 || counter_index +1 > _num_timing_counters)
+    { // Index out of range!
+        return 1;
+    }
+
+    _counters_limits[counter_index] = counter_limit;
+    _pwm_user_functions[counter_index] = function;
+    if(function_enabled > 2)
+    { // This must be a boolean (either 0 or 1).
+        return 2;
+    }
+    _user_functions_enabled[counter_index] = function_enabled;
+
+    return 0;
+}
+
 ISR(TIMER0_OVF_vect)
 {
     // Check for timing trigger.

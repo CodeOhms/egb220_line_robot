@@ -26,6 +26,15 @@ void fast_pwm_init_min(uint8_t num_timing_counters);
 
 void fast_pwm_close();
 
+/*
+Changes the corresponding values for a specific set of counter info
+using the given index.
+Call the `fast_pwm_init_min()` function first!
+*/
+uint8_t fast_pwm_set_data(uint8_t counter_index, uint8_t counter_limit,
+                         func_ptr_rvoid_t function,
+                        uint8_t function_enabled);
+
 uint8_t fast_pwm_func_is_enabled(uint8_t function_index);
 
 #endif //FAST_PWM_H
