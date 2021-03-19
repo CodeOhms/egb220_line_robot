@@ -1,6 +1,17 @@
 #include "initialise.h"
 #include "motors.h"
 
+#ifdef ENV_AVR
+
+#include <util/delay.h>
+
+void delay(double ms)
+{
+    _delay_ms(ms);
+}
+
+#endif //ENV_AVR
+
 // Use this as our "int main(void)" replacement.
 void line_following_robot(void)
 {

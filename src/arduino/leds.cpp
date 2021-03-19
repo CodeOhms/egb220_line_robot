@@ -1,3 +1,5 @@
+#ifdef ENV_ARDUINO
+
 #include <stdlib.h>
 #include <Arduino.h>
 
@@ -87,3 +89,5 @@ uint8_t led_builtin_toggle(enum leds led_id)
 {
     return led_toggle((uint8_t) led_id);
 }
+
+#endif //ENV_ARDUINO

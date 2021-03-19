@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "interrupts.h"
 #include "fast_pwm.h"
 
@@ -51,6 +53,11 @@ void fast_pwm_close()
     free(_counters_limits);
     free(_pwm_user_functions);
     free(_user_functions_enabled);
+}
+
+void fast_pwm_set_counter(uint8_t counter_index, uint8_t counter_limit)
+{
+    _counters_limits[counter_index] = counter_limit;
 }
 
 uint8_t fast_pwm_set_data(uint8_t counter_index, uint8_t counter_limit,
