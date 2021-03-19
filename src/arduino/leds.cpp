@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <Arduino.h>
 
 #include "leds.h"
@@ -5,7 +6,7 @@
 uint8_t _num_pins = 0;
 uint8_t* _led_pins = 0;
 
-void led_init(uint8_t* led_pins)
+void led_init(enum pins_mcu* led_pins)
 {
     // Allocate dynamic memory for led_pins 'array'.
     _num_pins = sizeof(led_pins)/sizeof(uint8_t);

@@ -20,10 +20,10 @@ void fast_pwm_init_min(uint8_t num_timing_counters)
     TCCR0B &= ~(1<<0);
 
     // Create the arrays and init to 0 (calloc inits all to 0).
-    _timing_counters = calloc(sizeof(uint8_t) * num_timing_counters);
-    _counters_limits  = calloc(sizeof(uint8_t) * num_timing_counters);
-    _pwm_user_functions = calloc(sizeof(func_ptr_rvoid_t) * num_timing_counters);
-    _user_functions_enabled = calloc(sizeof(uint8_t) * num_timing_counters);
+    _timing_counters = calloc(num_timing_counters, sizeof(uint8_t));
+    _counters_limits  = calloc(num_timing_counters, sizeof(uint8_t));
+    _pwm_user_functions = calloc(num_timing_counters, sizeof(func_ptr_rvoid_t));
+    _user_functions_enabled = calloc(num_timing_counters, sizeof(uint8_t));
 }
 
 void fast_pwm_init(uint8_t num_timing_counters, uint8_t* counters_limits, func_ptr_rvoid_t* pwm_user_functions, uint8_t* user_functions_enabled)

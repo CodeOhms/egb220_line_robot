@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "peripherals.h"
+#include "pins.h"
 
 /*
 Provide a uint8_t array filled with the pin numbers
@@ -13,7 +14,7 @@ The array led_pins will be copied.
 The pin numbers should be what is defined by
 JDLuck's Arduino port.
 */
-void led_init(uint8_t* led_pins);
+void led_init(enum pins_mcu* led_pins);
 
 void led_close();
 

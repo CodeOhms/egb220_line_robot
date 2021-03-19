@@ -136,6 +136,6 @@ Does nothing if ENV_ARDUINO == 1.
 If ENV_AVR == 1,
 sets up the `port_registers` and `direction_registers` arrays.
 */
-void pins_mcu_init();
+void pins_init();
 
 #endif //PINS_H

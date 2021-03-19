@@ -1,4 +1,4 @@
-#if ENV_ARDUINO == 1
+#ifdef ENV_ARDUINO
 
 #include <Arduino.h>
 #include "initialise.h"

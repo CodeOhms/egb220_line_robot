@@ -51,7 +51,7 @@ void motor_move_direct(float speed, enum motor_direction direction, uint8_t enab
 #ifdef ENV_AVR
 struct _motor_info
 {
-    enum motors motor_selected;
+    enum pwm_devices motor_selected;
 
     uint8_t* port_regs[HBRIDGE_PINS_PER_M];
     uint8_t* direction_regs[HBRIDGE_PINS_PER_M];

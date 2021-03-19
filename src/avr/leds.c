@@ -1,8 +1,15 @@
+#ifdef ASDF
+
+#include <stdint.h>
+#include <stdlib.h>
 #include <avr/io.h>
 
 #include "leds.h"
 
-void led_init(uint8_t* led_pins)
+uint8_t _num_pins = 0;
+uint8_t* _led_pins = 0;
+
+void led_init(enum pins_mcu* led_pins)
 {
     // Allocate dynamic memory for led_pins 'array'.
     _num_pins = sizeof(led_pins)/sizeof(uint8_t);
@@ -17,7 +24,8 @@ void led_init(uint8_t* led_pins)
     // Setup led pins for output mode.
     for(uint8_t i = 0; i < _num_pins; ++i)
     {
-        pinMode(_led_pins[i], OUTPUT);
+        // pinMode(_led_pins[i], OUTPUT);
+        
     }
 }
 
@@ -26,7 +34,7 @@ void led_close()
     // Turn off the leds.
     for(uint8_t i = 0; i < _num_pins; ++i)
     {
-        digitalWrite(_led_pins[i], LOW);
+        // digitalWrite(_led_pins[i], LOW);
     }
 
     // Free allocated memory.
@@ -54,7 +62,7 @@ uint8_t led_enable(uint8_t led_index)
     }
     else
     {
-        pinMode(_led_pins[led_index], OUTPUT);
+        // pinMode(_led_pins[led_index], OUTPUT);
         return 1;
     }
     return 0; // Something went wrong.
@@ -68,7 +76,7 @@ uint8_t led_toggle(uint8_t led_index)
     }
     else
     {
-        digitalWrite(_led_pins[led_index], !digitalRead(_led_pins[led_index]));
+        // digitalWrite(_led_pins[led_index], !digitalRead(_led_pins[led_index]));
         return 1;
     }
     return 0; // Something went wrong.
@@ -83,3 +91,5 @@ uint8_t led_builtin_toggle(enum leds led_id)
 {
     return led_toggle((uint8_t) led_id);
 }
+
+#endif

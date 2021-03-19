@@ -26,6 +26,8 @@ void fast_pwm_init_min(uint8_t num_timing_counters);
 
 void fast_pwm_close();
 
+void fast_pwm_set_counter(uint8_t counter_index, uint8_t counter_limit);
+
 /*
 Changes the corresponding values for a specific set of counter info
 using the given index.
