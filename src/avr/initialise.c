@@ -22,8 +22,8 @@ void initialise(void)
     // led_init(led_pins);
 
     // Set up motors.
-    enum pins_mcu motor_l_pins[2] = { PB_Pin0, PB_Pin7 }; // Motor A.
-    enum pins_mcu motor_r_pins[2] = { PE_Pin6, PD_Pin0 }; // Motor B.
+    enum pins_mcu motor_l_pins[HBRIDGE_PINS_PER_M] = { PB_Pin0, PB_Pin7 }; // Motor A.
+    enum pins_mcu motor_r_pins[HBRIDGE_PINS_PER_M] = { PE_Pin6, PD_Pin0 }; // Motor B.
     // NOTE: seems like there are leds tied to each pin controlling the H bridge...
     motor_init(motor_l_pins, motor_r_pins);
 }

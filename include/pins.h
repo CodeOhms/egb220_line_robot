@@ -55,18 +55,18 @@ enum pins_mcu
 #ifdef ENV_AVR
 #include <avr/io.h>
 
-uint8_t* port_registers[5];
-uint8_t* direction_registers[5];
+volatile uint8_t* port_registers[5];
+volatile uint8_t* direction_registers[5];
 
 /*
 Translates enums from `pins_mcu` to the corresponding port register.
 */
-uint8_t* resolve_port_reg(enum pins_mcu pin_mcu);
+volatile uint8_t* resolve_port_reg(enum pins_mcu pin_mcu);
 
 /*
 Translates enums from `pins_mcu` to the corresponding direction register.
 */
-uint8_t* resolve_direction_reg(enum pins_mcu pin_mcu);
+volatile uint8_t* resolve_direction_reg(enum pins_mcu pin_mcu);
 
 /*
 Translates enums from `pins_mcu` to the corresponding pin offset/number of its port.

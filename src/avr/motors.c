@@ -135,8 +135,8 @@ void motor_move_direct(float speed, enum motor_direction direction, struct _moto
 
     // Retrieve the variables needed from the motor_pins.
         // Both are pointers to the first element in the arrays, saves copying them :).
-    uint8_t** port_regs  = motor_pins.port_regs;
-    uint8_t* pins_offset = motor_pins.pins_offset;
+    volatile uint8_t** port_regs  = motor_pins.port_regs;
+    volatile uint8_t* pins_offset = motor_pins.pins_offset;
 
     // Set the counter limit for the PWM to set speed.
     fast_pwm_set_counter((uint8_t) motor_pins.motor_selected, speed_conv);

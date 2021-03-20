@@ -53,8 +53,8 @@ struct _motor_info
 {
     enum pwm_devices motor_selected;
 
-    uint8_t* port_regs[HBRIDGE_PINS_PER_M];
-    uint8_t* direction_regs[HBRIDGE_PINS_PER_M];
+    volatile uint8_t* port_regs[HBRIDGE_PINS_PER_M];
+    volatile uint8_t* direction_regs[HBRIDGE_PINS_PER_M];
     uint8_t pins_offset[HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E = PE_Pin6.
 };
 
