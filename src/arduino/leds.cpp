@@ -1,10 +1,14 @@
-#include "leds.h"
+#ifdef ENV_ARDUINO
 
+#include <stdlib.h>
+#include <Arduino.h>
+
+#include "leds.h"
 
 uint8_t _num_pins = 0;
 uint8_t* _led_pins = 0;
 
-void led_init(uint8_t* led_pins)
+void led_init(enum pins_mcu* led_pins)
 {
     // Allocate dynamic memory for led_pins 'array'.
     _num_pins = sizeof(led_pins)/sizeof(uint8_t);
@@ -76,16 +80,6 @@ uint8_t led_toggle(uint8_t led_index)
     return 0; // Something went wrong.
 }
 
-// void led_builtin_enable(enum leds led_id)
-// {
-//     pinMode(_led_pins[led_id], OUTPUT);
-// }
-
-// void led_builtin_toggle(enum leds led_id)
-// {
-//     digitalWrite(_led_pins[led_id], !digitalRead(_led_pins[led_id]));
-// }
-
 uint8_t led_builtin_enable(enum leds led_id)
 {
     return led_enable((uint8_t) led_id);
@@ -95,3 +89,5 @@ uint8_t led_builtin_toggle(enum leds led_id)
 {
     return led_toggle((uint8_t) led_id);
 }
+
+#endif //ENV_ARDUINO

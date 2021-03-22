@@ -1,7 +1,6 @@
 #ifndef  PERIPHERALS_H
 #define  PERIPHERALS_H
 
-
 enum leds
 {
     led0,
@@ -20,5 +19,12 @@ enum motors
     motor_right
 };
 
+enum pwm_devices
+{
+    pwm_motor_left,
+    pwm_motor_right
+};
+
+#define PWM_NUM_DEVICES 2
 
 #endif //PERIPHERALS

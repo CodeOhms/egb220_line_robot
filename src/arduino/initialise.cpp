@@ -1,10 +1,11 @@
-#include "initialise.h"
+#ifdef ENV_ARDUINO
 
-#ifdef    ENV_ARDUINO
 #include <Arduino.h>
+#include "initialise.h"
 #include "main.h"
 #include "leds.h"
 #include "motors.h"
+
 
 void setup(void)
 {
@@ -36,13 +37,3 @@ void loop(void)
 }
 
 #endif //ENV_ARDUINO
-
-
-#ifdef   ENV_AVR
-
-void initialise(void)
-{
-
-}
-
-#endif //ENV_AVR
