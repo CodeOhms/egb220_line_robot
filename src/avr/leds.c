@@ -9,11 +9,11 @@
 uint8_t _num_pins = 0;
 uint8_t* _led_pins = 0;
 
-void led_init(enum pins_mcu* led_pins)
+void led_init(enum pins_mcu* led_pins, uint8_t num_pins)
 {
     // Allocate dynamic memory for led_pins 'array'.
-    _num_pins = sizeof(led_pins)/sizeof(uint8_t);
-    _led_pins = (uint8_t*) malloc(sizeof(led_pins));
+    _num_pins = num_pins;
+    _led_pins = (uint8_t*) malloc(sizeof(uint8_t*) * num_pins);
 
     // Copy the array into led_pins.
     for(uint8_t i = 0; i < _num_pins; ++i)

@@ -1,6 +1,7 @@
 #ifndef   MOTORS_H
 #define   MOTORS_H
 
+#include "arrays_multidimensional.h"
 #include "pins.h"
 #include "peripherals.h"
 
@@ -17,10 +18,13 @@ enum motor_direction
 };
 
 /*
-Provide a uint8_t array, for both motors,
-filled with the pin numbers for
-the input and enable pins of each.
+Provide a two dimensional array, for each motor, storing arrays of uint8_t numbers.
+The 0th dimension represents a motor, and contains the array in the 1st dimension.
+The 1st dimesnion represents the pins connected to an h bridge for, each motor.
+I.e. the 1st dimension contains the pin numbers for the phase/direction and enable pins of each.
 Each array will be copied.
+
+Returns 0 if fast_pwm not already initialised!
 
 The pin numbers should be what is defined by
 JDLuck's Arduino port.
@@ -34,8 +38,7 @@ meaning the H bridge operates in PHASE/ENABLE mode.
 H Bridge datasheet: https://www.ti.com/product/DRV8835?HQS=TI-null-null-octopart-df-pf-null-wwe
 Additional explaination of H bridge: https://www.pololu.com/product/2753
 */
-// void motor_init(uint8_t* motor_l_pins, uint8_t* motor_r_pins);
-void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins);
+uint8_t motor_init(enum pins_mcu motors_pins[MOTORS_NUM][HBRIDGE_PINS_PER_M]);
 
 void motor_close();
 
@@ -49,16 +52,28 @@ void motor_move_direct(float speed, enum motor_direction direction, uint8_t enab
 #endif //ENV_ARDUINO
 
 #ifdef ENV_AVR
+// struct _motor_info
+// {
+//     enum pwm_devices motor_selected;
+
+//     volatile uint8_t* phase_pin_port_reg;
+//     volatile uint8_t* direction_regs[HBRIDGE_PINS_PER_M];
+//     enum pins_mcu enable_pin;
+//     uint8_t pins_offset[HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E = PE_Pin6.
+// };
 struct _motor_info
 {
     enum pwm_devices motor_selected;
 
-    volatile uint8_t* port_regs[HBRIDGE_PINS_PER_M];
-    volatile uint8_t* direction_regs[HBRIDGE_PINS_PER_M];
-    uint8_t pins_offset[HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E = PE_Pin6.
+    // volatile uint8_t* phase_pin_port_reg;
+    // volatile uint8_t* direction_regs[HBRIDGE_PINS_PER_M];
+    volatile uint8_t* port_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
+    volatile uint8_t* direction_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
+    enum pins_mcu enable_pin[MOTORS_NUM];
+    uint8_t pins_offset[MOTORS_NUM][HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E = PE_Pin6.
 };
 
-void motor_move_direct(float speed, enum motor_direction direction, struct _motor_info motor_pins);
+void motor_move_direct(float speed, enum motor_direction direction, uint8_t motor_selected);
 #endif //ENV_AVR
 
 void motor_move(float speed, enum motor_direction direction, enum motors motor);

@@ -1,0 +1,65 @@
+#include <stdio.h>
+
+// 0st byte: index in enum pins. 1nd byte: index in register array.
+// Last bit HIGH (on the left end) indicates if it has an associated pwm clock pin.
+enum pins
+{
+    a = (unsigned int) (0 << 8) | 0,
+    b = (unsigned int) (1 << 15) | 1,
+    c = (unsigned int) (1 << 8) | 2,
+    d = (unsigned int) (1 << 15) | 3
+};
+
+// // 0st byte: index in enum pins. 1nd byte: index in register array.
+// enum pins_aliases
+// {
+//     a_pwm = 0U | ((unsigned int) a),
+//     c_pwm = 1U | ((unsigned int) c)
+// };
+
+// unsigned int pins_alises_related_index[] = {
+//     (unsigned int) a_pwm,
+//     (unsigned int) c_pwm
+// };
+
+unsigned int* comp_regs[] = {
+    1234U,
+    5678U
+};
+
+unsigned int comp_reg_exists(enum pins pin)
+{
+    if( ((unsigned int) pin >> 15) )
+    {
+        return 0;
+    }
+    return 1;
+}
+
+unsigned int read_index_enum(enum pins pin)
+{
+    return (unsigned int) pin & 0xff;
+}
+
+unsigned int read_index_array(enum pins pin)
+{
+    return ((unsigned int) pin >> 8) & 0xff;
+}
+
+void main(void)
+{
+    enum pins pina = a;
+    enum pins pinb = b;
+    enum pins pinc = c;
+
+    unsigned int* pina_comp_reg = comp_regs[read_index_enum(pina)];
+    if(!comp_reg_exists(pinb))
+    {
+        printf("Doesn't exist!\n");
+    }
+    
+    unsigned int* pinc_comp_reg = comp_regs[read_index_array(pinc)];
+
+    printf("Pin 'a' has a compare register: address = %p\n", pina_comp_reg);
+    printf("Pin 'c' has a compare register: address = %p\n", pinc_comp_reg);
+}

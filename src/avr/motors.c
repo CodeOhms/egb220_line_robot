@@ -7,112 +7,162 @@
 #include "motors.h"
 #include "fast_pwm.h"
 
-struct _motor_info _motor_l;
-struct _motor_info _motor_r;
+// struct _motor_info _motor_l;
+// struct _motor_info _motor_r;
+struct _motor_info _motors;
 
 /*
 Callback functions that is given to the fast pwm ISR.
 Responsible for toggling the enable pin, for
 specified motor, to generate a PWM signal.
 */
-void motor_l_pwm_event(void)
+// void motor_l_pwm_event(void)
+// {
+//     uint8_t offset = _motor_l.pins_offset[ENABLE];
+//     *(_motor_l.direction_regs[ENABLE]) ^= (1<<offset);
+// }
+// void motor_r_pwm_event(void)
+// {
+//     uint8_t offset = _motor_r.pins_offset[ENABLE];
+//     *(_motor_r.direction_regs[ENABLE]) ^= (1<<offset);
+// }
+
+/*
+This is only needed during initialisation and shutdown of this code.
+*/
+void get_motor_port_regs(volatile uint8_t** port_registers)
 {
-    uint8_t offset = _motor_l.pins_offset[ENABLE];
-    *(_motor_l.direction_regs[ENABLE]) ^= (1<<offset);
-}
-void motor_r_pwm_event(void)
-{
-    uint8_t offset = _motor_r.pins_offset[ENABLE];
-    *(_motor_r.direction_regs[ENABLE]) ^= (1<<offset);
+
 }
 
-void motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
+// uint8_t motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
+uint8_t motor_init(enum pins_mcu motors_pins[MOTORS_NUM][HBRIDGE_PINS_PER_M])
 {
-    // Set up pwm device identifier.
-    _motor_l.motor_selected = pwm_motor_left;
-    _motor_r.motor_selected = pwm_motor_right;
+    // Set up pwm device identifiers.
+    // _motor_l.motor_selected = pwm_motor_left;
+    // _motor_r.motor_selected = pwm_motor_right;
 
-    // Resolve registers.
+    if(!_fast_pwm_is_initialised)
+    {
+        return 0;
+    }
+
+    for(uint8_t motor = 0; motor < MOTORS_NUM; ++motor)
+    {
+        // Set up enable pins alises:
+        _motors.enable_pin[motor] = motors_pins[motor][ENABLE];
+
+        // uint8_t index_phase = arrays_multidim_get_index(motor, HBRIDGE_PINS_PER_M, PHASE);
+        // uint8_t index_enable = arrays_multidim_get_index(motor, HBRIDGE_PINS_PER_M, ENABLE);
+
+    // Resolve registers:
         // Port registers:
-    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
-    {
-        _motor_l.port_regs[i] = resolve_port_reg(motor_l_pins[i]);
-        _motor_r.port_regs[i] = resolve_port_reg(motor_r_pins[i]);
-    }
+        _motors.port_regs[motor][PHASE] = resolve_port_reg(motors_pins[motor][PHASE]);
+        _motors.port_regs[motor][ENABLE] = resolve_port_reg(motors_pins[motor][ENABLE]);
+
         // Direction registers:
-    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
-    {
-        _motor_l.direction_regs[i] = resolve_direction_reg(motor_l_pins[i]);
-        _motor_r.direction_regs[i] = resolve_direction_reg(motor_r_pins[i]);
+        _motors.direction_regs[motor][PHASE] = resolve_direction_reg(motors_pins[motor][PHASE]);
+        _motors.direction_regs[motor][ENABLE] = resolve_direction_reg(motors_pins[motor][ENABLE]);
+    
+    // Resolve pin numbering offsets:
+        _motors.pins_offset[motor][PHASE] = resolve_pin_offset(motors_pins[motor][PHASE]);
+        _motors.pins_offset[motor][ENABLE] = resolve_pin_offset(motors_pins[motor][ENABLE]);
+
+    // Setup pins as outputs:
+        uint8_t offset = _motors.pins_offset[motor][PHASE];
+        *(_motors.direction_regs[motor][PHASE]) |= (1<<offset); 
+        offset = _motors.pins_offset[motor][ENABLE];
+        *(_motors.direction_regs[motor][ENABLE]) |= (1<<offset);
+
+    // Set the compare match flags to zero to start.
+        fast_pwm_set_compare_counter(motors_pins[motor][ENABLE], 0);
     }
 
-    // Set up the pin numbering offsets.
-    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
-    {
-        _motor_l.pins_offset[i] = resolve_pin_offset(motor_l_pins[i]);
-        _motor_r.pins_offset[i] = resolve_pin_offset(motor_r_pins[i]);
-    }
+    return 1;
 
-    // Set up control pins as outputs.
-    for(uint8_t i = 0; HBRIDGE_PINS_PER_M; ++i)
-    {
-        uint8_t offset = _motor_l.pins_offset[i];
-        *(_motor_l.direction_regs[i]) |= (1<<offset);
+//     // Set enable pin:
+//     _motor_l.enable_pin = motor_l_pins[ENABLE];
+//     _motor_r.enable_pin = motor_r_pins[ENABLE];
 
-        offset = _motor_r.pins_offset[i];
-        *(_motor_r.direction_regs[i]) |= (1<<offset);
-    }
+//     // Resolve registers:
+//         // Port registers (phase pin only):
+//     _motor_l.phase_pin_port_reg = resolve_port_reg(motor_l_pins[PHASE]);
+//     _motor_r.phase_pin_port_reg = resolve_port_reg(motor_r_pins[PHASE]);
 
-    // Set up pwm functions for each motor, DC init to 0, disabled by default.
-        // Motor left.
-    fast_pwm_set_data((uint8_t) pwm_motor_left, 0, &motor_l_pwm_event, 0);
-        // Motor right.
-    fast_pwm_set_data((uint8_t) pwm_motor_right, 0, &motor_r_pwm_event, 0);
-}
+//     for(uint8_t phase_enable_pin = 0; phase_enable_pin < HBRIDGE_PINS_PER_M; ++phase_enable_pin)
+//     {
+//         // Direction registers:
+//         _motor_l.direction_regs[phase_enable_pin] = resolve_direction_reg(motor_l_pins[phase_enable_pin]);
+//         _motor_r.direction_regs[phase_enable_pin] = resolve_direction_reg(motor_r_pins[phase_enable_pin]);
 
-void motor_close()
-{
-    // Turn off the motors.
-        // Set both the phase and enable pins low.
-    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
-    {
-        uint8_t offset = _motor_l.pins_offset[i];
-        *(_motor_l.port_regs[i]) &= ~(1<<offset);
+//     // Set up the pin numbering offsets.
+//         _motor_l.pins_offset[phase_enable_pin] = resolve_pin_offset(motor_l_pins[phase_enable_pin]);
+//         _motor_r.pins_offset[phase_enable_pin] = resolve_pin_offset(motor_r_pins[phase_enable_pin]);
+//     }
 
-        offset = _motor_r.pins_offset[i];
-        *(_motor_r.port_regs[i]) &= ~(1<<offset);
-    }
+//     // Set up control pins as outputs.
+//         // Get the port registers for this:
+//     volatile uint8_t*** port_registers = (uint8_t*) malloc(MOTORS_NUM * HBRIDGE_PINS_PER_M * sizeof(uint8_t*));
+//     for(uint8_t motor = 0; motor < MOTORS_NUM; ++motor)
+//     {
+//         for(uint8_t pin = 0; pin < HBRIDGE_PINS_PER_M; ++pin)
+//         {
+//             uint8_t offset = 
+//             *(port_registers[motor][pin]) |= (1<<offset);
+//         }
+//     }
 
-    // Clear the data.
-        // Port registers:
-    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
-    {
-        _motor_l.port_regs[i] = 0;
-        _motor_r.port_regs[i] = 0;
-    }
-        // Direction registers:
-    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
-    {
-        _motor_l.direction_regs[i] = 0;
-        _motor_r.direction_regs[i] = 0;
-    }
+//     uint8_t offset = _motor_l.pins_offset[PHASE];
+//     *(_motor_l.phase_pin_port_reg) |= (1<<offset);
 
-        // Pin numbering offsets:
-    for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
-    {
-        _motor_l.pins_offset[i] = 0;
-        _motor_r.pins_offset[i] = 0;
-    }
+//     offset = _motor_r.pins_offset[phase_enable_pin];
+//     *(_motor_r.direction_regs[phase_enable_pin]) |= (1<<offset);
+//     //
 
-    // Reset control pins.
-    for(uint8_t i = 0; HBRIDGE_PINS_PER_M; ++i)
-    {
-        uint8_t offset = _motor_l.pins_offset[i];
-        *(_motor_l.direction_regs[i]) &= ~(1<<offset);
+//     // Set the compare match flags to zero to start.
+//     fast_pwm_set_compare_counter(_motor_l.enable_pin, 0);
+//     fast_pwm_set_compare_counter(_motor_r.enable_pin, 0);
+// }
 
-        offset = _motor_r.pins_offset[i];
-        *(_motor_r.direction_regs[i]) &= ~(1<<offset);
-    }
+// void motor_close()
+// {
+//     // Turn off the motors.
+//         // Set the phase pin logic levels low.
+//     *(_motor_l.phase_pin_port_reg) &= ~(1<<_motor_l.pins_offset[PHASE]);
+//     *(_motor_r.phase_pin_port_reg) &= ~(1<<_motor_r.pins_offset[PHASE]);
+    
+//         // Set the pwm compare match flags to zero.
+//     fast_pwm_set_compare_counter(_motor_l.enable_pin, 0);
+//     fast_pwm_set_compare_counter(_motor_r.enable_pin, 0);
+
+//         // Set both the phase and enable pins' direction registers low.
+//     for(uint8_t phase_enable_pin = 0; phase_enable_pin < HBRIDGE_PINS_PER_M; ++phase_enable_pin)
+//     {
+//         uint8_t offset = _motor_l.pins_offset[phase_enable_pin];
+//         *(_motor_l.direction_regs[phase_enable_pin]) &= ~(1<<offset);
+
+//         offset = _motor_r.pins_offset[phase_enable_pin];
+//         *(_motor_r.direction_regs[phase_enable_pin]) &= ~(1<<offset);
+//     }
+
+//     // Clear the data.
+//         // Port registers:
+//     _motor_l.phase_pin_port_reg = 0;
+//     _motor_r.phase_pin_port_reg = 0;
+//     for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
+//     {
+//         // Direction registers:
+//         _motor_l.direction_regs[i] = 0;
+//         _motor_r.direction_regs[i] = 0;
+
+//         // Pin numbering offsets:
+//         _motor_l.pins_offset[i] = 0;
+//         _motor_r.pins_offset[i] = 0;
+//     }
+
+//         // Enable pin alises:
+//     _motor_l.enable_pin = 0;
+//     _motor_r.enable_pin = 0;
 }
 
 uint8_t speed_to_pwm_value(float speed)
@@ -128,66 +178,62 @@ uint8_t speed_to_pwm_value(float speed)
     return speed_conv;
 }
 
-void motor_move_direct(float speed, enum motor_direction direction, struct _motor_info motor_pins)
+void motor_move_direct(float speed, enum motor_direction direction, uint8_t motor_selected)
 {
     // Convert speed between 0 to 100% to between 0 to 255.
     uint8_t speed_conv = speed_to_pwm_value(speed);
 
-    // Retrieve the variables needed from the motor_pins.
-        // Both are pointers to the first element in the arrays, saves copying them :).
-    volatile uint8_t** port_regs  = motor_pins.port_regs;
-    volatile uint8_t* pins_offset = motor_pins.pins_offset;
-
-    // Set the counter limit for the PWM to set speed.
-    fast_pwm_set_counter((uint8_t) motor_pins.motor_selected, speed_conv);
+    // Retrieve the variables needed from `motor_selected`.
+        // This is a pointer to the first element in the array, saves copying it :).
+    volatile uint8_t* phase_pin_port_reg = _motors.port_regs[motor_selected][PHASE];
+    uint8_t* pins_offset = _motors.pins_offset[motor_selected];
 
     // Activate motor.
     switch(direction)
     {
         case forward:
             // Set phase pin low.
-            *(port_regs[PHASE]) &= ~(1<<pins_offset[PHASE]);
+            *(phase_pin_port_reg) &= ~(1<<pins_offset[PHASE]);
             break;
         
         case reverse:
             // Set phase pin high.
-            *(port_regs[PHASE]) |= (1<<pins_offset[PHASE]);
+            *(phase_pin_port_reg) |= (1<<pins_offset[PHASE]);
             break;
         
         case stop:
             // Set phase pin low, and use a duty cycle of 0%.
-            *(port_regs[PHASE]) &= ~(1<<pins_offset[PHASE]);
+            *(phase_pin_port_reg) &= ~(1<<pins_offset[PHASE]);
             speed_conv = 0;
             break;
 
         default:
             // Something went VERY WRONG.
             // TODO: deal with this going wrong HIGH PRIORITY.
-            *(port_regs[PHASE]) &= ~(1<<pins_offset[PHASE]);
+            *(phase_pin_port_reg) &= ~(1<<pins_offset[PHASE]);
             speed_conv = 0;
             break;
     }
 
-    // Setup pwm signal.
-    // analogWrite(enable_pin, speed_conv);
-    //FIXME: set up pwm signal for given motor.
+    // Set the compare threshold for the PWM to set speed.
+    fast_pwm_set_compare_counter(_motors.enable_pin[motor_selected], speed_conv);
 }
 
 void motor_move(float speed, enum motor_direction direction, enum motors motor)
 {
-    struct _motor_info motor_selected;
-    switch(motor)
-    {
-        case motor_left:
-            motor_selected = _motor_l;
-            break;
+    // struct _motor_info* motor_selected;
+    // switch(motor)
+    // {
+    //     case motor_left:
+    //         motor_selected = &_motor_l;
+    //         break;
         
-        case motor_right:
-            motor_selected = _motor_r;
-            break;
-    }
+    //     case motor_right:
+    //         motor_selected = &_motor_r;
+    //         break;
+    // }
 
-    motor_move_direct(speed, direction, motor_selected);
+    motor_move_direct(speed, direction, (uint8_t) motor);
 }
 
 #endif //ENV_AVR

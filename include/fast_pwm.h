@@ -1,42 +1,47 @@
 #ifndef  FAST_PWM_H
 #define  FAST_PWM_H
 
+#include "pins.h"
+
 /*
 PWM resoultion of 256 values (0 -> 255 inclusive).
 */
 
+extern uint8_t _fast_pwm_is_initialised;
+
+enum prescalers
+{
+    no_clock_source,
+    no_prescaler,
+    prescaler8,
+    prescaler64,
+    prescaler256,
+    prescaler1024,
+    extern_clock_falling,
+    extern_clock_rising
+};
+
 /*
-Needs three arrays with corresponding indexes.
-    `num_timing_counters`: an array of counters for timing the individual pwm
-signals.
-    `counters_limits`: an array for storing the count limit for when the 
-pwm interrupt needs to trigger the corresponding command of the counter.
-    `pwm_user_functions`: an array for the associated functions of each
-pwm signal (also known as a function table).
-E.g. counter 0 toggles an led and counter 1 toggles an enable
-pin on the h at 40% duty cycle, or every 102 counts (0.4 * 255).
+Initialises the fast pwm functionality.
+
+Needs:
+- A `prescaler` option selected.
+- A "boolean" value set for pwm_inverted to choose either inverting or non-inverting pwm
+    (compare match sets pwm signal low).
+- The array `compare_thresholds` is to set the compare match threshold.
+- An array of pwm enabled pins that will be used.
+- The number of pwm pins, or the size of the `pins` array.
+
+NOTE: this will not setup the pins as outputs, caller code must do this!
 */
-typedef void(*func_ptr_rvoid_t)(void);
-// void pwm_init(uint8_t num_timing_counters, void (**pwm_user_functions)(void));
-void fast_pwm_init(uint8_t num_timing_counters, uint8_t* counters_limits,
-                   func_ptr_rvoid_t* pwm_user_functions,
-                   uint8_t* user_functions_enabled);
-// Provide alt init function to set counter limits and user functions later.
-void fast_pwm_init_min(uint8_t num_timing_counters);
+uint8_t fast_pwm_init(enum prescalers prescaler, uint8_t pwm_inverted, uint8_t* compare_thresholds,
+                      enum pins_mcu* pins, uint8_t num_pins);
 
 void fast_pwm_close();
 
-void fast_pwm_set_counter(uint8_t counter_index, uint8_t counter_limit);
+void fast_pwm_select_prescaler(enum prescalers prescaler);
 
-/*
-Changes the corresponding values for a specific set of counter info
-using the given index.
-Call the `fast_pwm_init_min()` function first!
-*/
-uint8_t fast_pwm_set_data(uint8_t counter_index, uint8_t counter_limit,
-                         func_ptr_rvoid_t function,
-                        uint8_t function_enabled);
-
-uint8_t fast_pwm_func_is_enabled(uint8_t function_index);
+void fast_pwm_set_compare_counter_direct(uint8_t compare_index, uint8_t compare_threshold);
+void fast_pwm_set_compare_counter(enum pins_mcu pin_mcu, uint8_t compare_threshold);
 
 #endif //FAST_PWM_H

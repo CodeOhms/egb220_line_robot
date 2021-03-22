@@ -14,7 +14,7 @@ The array led_pins will be copied.
 The pin numbers should be what is defined by
 JDLuck's Arduino port.
 */
-void led_init(enum pins_mcu* led_pins);
+void led_init(enum pins_mcu* led_pins, uint8_t num_pins);
 
 void led_close();
 

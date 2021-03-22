@@ -1,104 +1,197 @@
+#include <stdint.h>
 #include <stdlib.h>
+#include <avr/io.h>
 
-#include "interrupts.h"
 #include "fast_pwm.h"
 
-uint8_t _num_timing_counters = 0;
-uint8_t* _timing_counters = 0;
-uint8_t* _counters_limits  = 0;
-// void (**_pwm_user_functions)(void) = 0;
-func_ptr_rvoid_t* _pwm_user_functions = 0;
-uint8_t* _user_functions_enabled = 0;
+         uint8_t _fast_pwm_is_initialised = 0;
+volatile uint8_t** _compare_regs = 0; // Pointer to array.
 
-void fast_pwm_init_min(uint8_t num_timing_counters)
+void pwm_inverted(enum pins_mcu pin_mcu)
 {
-    _num_timing_counters = num_timing_counters;
+    uint8_t offsets_X[2];
 
-    // Enable overflow interrupt.
-    TIMSK0 |= (1<<0);
-    // Select a prescaler of 256.
-    TCCR0B |=  (1<<2);
-    TCCR0B &= ~(1<<1);
-    TCCR0B &= ~(1<<0);
+    // Resolve the needed offsets:
+    read_pwm_inverting_mode_bits_offset(pin_mcu, offsets_X);
 
-    // Create the arrays and init to 0 (calloc inits all to 0).
-    _timing_counters = calloc(num_timing_counters, sizeof(uint8_t));
-    _counters_limits  = calloc(num_timing_counters, sizeof(uint8_t));
-    _pwm_user_functions = calloc(num_timing_counters, sizeof(func_ptr_rvoid_t));
-    _user_functions_enabled = calloc(num_timing_counters, sizeof(uint8_t));
+    TCCR0A |= (1<<offsets_X[1]);
+    TCCR0A |= (1<<offsets_X[0]);
 }
 
-void fast_pwm_init(uint8_t num_timing_counters, uint8_t* counters_limits, func_ptr_rvoid_t* pwm_user_functions, uint8_t* user_functions_enabled)
+void pwm_non_inverted(enum pins_mcu pin_mcu)
 {
-    fast_pwm_init_min(num_timing_counters);
+    uint8_t offsets_X[2];
 
-    // Copy the arrays.
-    for(uint8_t i = 0; i < num_timing_counters; ++i)
+    // Resolve the needed offsets:
+    read_pwm_inverting_mode_bits_offset(pin_mcu, offsets_X);
+
+    TCCR0A |= (1<<offsets_X[1]);
+    TCCR0A &= ~(1<<offsets_X[0]);
+}
+
+// void pwm_inverted_OC0A()
+// {
+//     TCCR0A |= (1<<COM0A1);
+//     TCCR0A |= (1<<COM0A0);
+// }
+
+// void pwm_non_inverted_OC0A()
+// {
+//     TCCR0A |= (1<<COM0A1);
+//     TCCR0A &= ~(1<<COM0A0);
+// }
+
+// void pwm_inverted_OC0B()
+// {
+//     TCCR0A |= (1<<COM0B1);
+//     TCCR0A |= (1<<COM0B0);
+// }
+
+// void pwm_non_inverted_OC0B()
+// {
+//     TCCR0A |= (1<<COM0B1);
+//     TCCR0A &= ~(1<<COM0B0);
+// }
+
+uint8_t fast_pwm_init(enum prescalers prescaler, uint8_t pwm_is_inverted, uint8_t* compare_thresholds,
+                      enum pins_mcu* pins, uint8_t num_pins)
+{
+    // Set up fast pwm with default TOP of 0xFF (255):
+    TCCR0A |= (1<<WGM00);
+    TCCR0A |= (1<<WGM01);
+    TCCR0A &= ~(1<<WGM02);
+
+    // Select prescaler:
+    fast_pwm_select_prescaler(prescaler);    
+
+    // Allocate memory for the array of compare registers:
+    _compare_regs = (volatile uint8_t**) malloc(num_pins * sizeof(_compare_regs[0]));
+
+    // Resolve used compare registers, set pwm inverting mode, and pins as outputs:
+    for(uint8_t i = 0; i < num_pins; ++i)
     {
-        _pwm_user_functions[i] = pwm_user_functions[i];
-        _counters_limits[i] = counters_limits[i];
-        _user_functions_enabled[i] = user_functions_enabled[i];
+        enum pins_mcu pin = pins[i];
+        if(exists_compare_reg(pin))
+        {
+            _compare_regs[i] = resolve_compare_reg(pin);
+
+            // Inverted pwm signal?
+            if(pwm_is_inverted)
+            {
+                pwm_inverted(pin);
+            }
+            else
+            {
+                pwm_non_inverted(pin);
+            }
+        }
+        else
+        {
+            // TODO: compare register doesn't exist. Fatal error!
+            return 0;
+        }
     }
+
+    // Set compare thresholds using the corresponding registers:
+    for(uint8_t i = 0; i < num_pins; ++i)
+    {
+        fast_pwm_set_compare_counter_direct(i, compare_thresholds[i]);
+    }
+
+    // User code must set PWM pins as outputs!
+
+    _fast_pwm_is_initialised = 1;
+
+    return 1;
 }
 
 void fast_pwm_close()
 {
-    _num_timing_counters = 0;
+    // Select no prescaler:
+    fast_pwm_select_prescaler(no_prescaler);
 
-    // Disable overflow interrupt.
-    TIMSK0 &= ~(1<<0);
-    // Do NOT touch the prescaler, just in case something else is using it.
-    // Free memory.
-    free(_timing_counters);
-    free(_counters_limits);
-    free(_pwm_user_functions);
-    free(_user_functions_enabled);
-}
-
-void fast_pwm_set_counter(uint8_t counter_index, uint8_t counter_limit)
-{
-    _counters_limits[counter_index] = counter_limit;
-}
-
-uint8_t fast_pwm_set_data(uint8_t counter_index, uint8_t counter_limit,
-                       func_ptr_rvoid_t function,
-                       uint8_t function_enabled)
-{
-    if(counter_index < 0 || counter_index +1 > _num_timing_counters)
-    { // Index out of range!
-        return 1;
-    }
-
-    _counters_limits[counter_index] = counter_limit;
-    _pwm_user_functions[counter_index] = function;
-    if(function_enabled > 2)
-    { // This must be a boolean (either 0 or 1).
-        return 2;
-    }
-    _user_functions_enabled[counter_index] = function_enabled;
-
-    return 0;
-}
-
-ISR(TIMER0_OVF_vect)
-{
-    // Check for timing trigger.
-    for(uint8_t i = 0; i < _num_timing_counters; ++i)
+    // Reset compare thresholds to zero:
+    for(uint8_t i = 0; i < sizeof(_compare_regs)/sizeof(compare_registers[0]); ++i)
     {
-        if(!_user_functions_enabled[i]) // Not enabled.
-        {
-            continue;
-        }
-
-        uint8_t* counter = &_timing_counters[i];
-        uint8_t  limit = _counters_limits[i];
-        ++*counter;
-        if(*counter >= limit)
-        {
-            // Call the associated function.
-            (*_pwm_user_functions[i])();
-            // Reset the counter.
-            *counter = 0;
-        }
+        fast_pwm_set_compare_counter_direct(i, 0);
     }
+    
+    // Disable fast pwm mode (set all to zero):
+    TCCR0A &= ~(1<<WGM00);
+    TCCR0A &= ~(1<<WGM01);
+    TCCR0A &= ~(1<<WGM02);
+
+    // Free memory:
+    free((uint8_t*) _compare_regs); // Cast to avoid the annoying warning.
+
+    _fast_pwm_is_initialised = 0;
+}
+
+void fast_pwm_select_prescaler(enum prescalers prescaler)
+{
+    switch(prescaler)
+    {
+    case no_clock_source:
+        TCCR0B &= ~(1<<CS02);
+        TCCR0B &= ~(1<<CS01);
+        TCCR0B &= ~(1<<CS00);
+        break;
+    
+    case no_prescaler:
+        TCCR0B &= ~(1<<CS02);
+        TCCR0B &= ~(1<<CS01);
+        TCCR0B |= (1<<CS00);
+        break;
+    
+    case prescaler8:
+        TCCR0B &= ~(1<<CS02);
+        TCCR0B |= (1<<CS01);
+        TCCR0B &= ~(1<<CS00);
+        break;
+    
+    case prescaler64:
+        TCCR0B &= ~(1<<CS02);
+        TCCR0B |= (1<<CS01);
+        TCCR0B |= (1<<CS00);
+        break;
+    
+    case prescaler256:
+        TCCR0B |= (1<<CS02);
+        TCCR0B &= ~(1<<CS01);
+        TCCR0B &= ~(1<<CS00);
+        break;
+    
+    case prescaler1024:
+        TCCR0B |= (1<<CS02);
+        TCCR0B &= ~(1<<CS01);
+        TCCR0B |= (1<<CS00);
+        break;
+    
+    case extern_clock_falling:
+        TCCR0B |= (1<<CS02);
+        TCCR0B |= (1<<CS01);
+        TCCR0B &= ~(1<<CS00);
+        break;
+    
+    case extern_clock_rising:
+        TCCR0B |= (1<<CS02);
+        TCCR0B |= (1<<CS01);
+        TCCR0B |= (1<<CS00);
+        break;
+    
+    default:
+        // Something went wrong!
+        break;
+    }
+}
+
+void fast_pwm_set_compare_counter_direct(uint8_t compare_index, uint8_t compare_threshold)
+{
+    *(_compare_regs)[compare_index] = compare_threshold;
+}
+
+void fast_pwm_set_compare_counter(enum pins_mcu pin_mcu, uint8_t compare_threshold)
+{
+    uint8_t index = read_compare_reg_index(pin_mcu);
+    fast_pwm_set_compare_counter_direct(index, compare_threshold);
 }
