@@ -29,30 +29,6 @@ void pwm_non_inverted(enum pins_mcu pin_mcu)
     TCCR0A &= ~(1<<offsets_X[0]);
 }
 
-// void pwm_inverted_OC0A()
-// {
-//     TCCR0A |= (1<<COM0A1);
-//     TCCR0A |= (1<<COM0A0);
-// }
-
-// void pwm_non_inverted_OC0A()
-// {
-//     TCCR0A |= (1<<COM0A1);
-//     TCCR0A &= ~(1<<COM0A0);
-// }
-
-// void pwm_inverted_OC0B()
-// {
-//     TCCR0A |= (1<<COM0B1);
-//     TCCR0A |= (1<<COM0B0);
-// }
-
-// void pwm_non_inverted_OC0B()
-// {
-//     TCCR0A |= (1<<COM0B1);
-//     TCCR0A &= ~(1<<COM0B0);
-// }
-
 uint8_t fast_pwm_init(enum prescalers prescaler, uint8_t pwm_is_inverted, uint8_t* compare_thresholds,
                       enum pins_mcu* pins, uint8_t num_pins)
 {
@@ -67,7 +43,7 @@ uint8_t fast_pwm_init(enum prescalers prescaler, uint8_t pwm_is_inverted, uint8_
     // Allocate memory for the array of compare registers:
     _compare_regs = (volatile uint8_t**) malloc(num_pins * sizeof(_compare_regs[0]));
 
-    // Resolve used compare registers, set pwm inverting mode, and pins as outputs:
+    // Resolve used compare registers, set pwm inverting mode:
     for(uint8_t i = 0; i < num_pins; ++i)
     {
         enum pins_mcu pin = pins[i];
@@ -95,7 +71,7 @@ uint8_t fast_pwm_init(enum prescalers prescaler, uint8_t pwm_is_inverted, uint8_
     // Set compare thresholds using the corresponding registers:
     for(uint8_t i = 0; i < num_pins; ++i)
     {
-        fast_pwm_set_compare_counter_direct(i, compare_thresholds[i]);
+        fast_pwm_set_compare_counter(pins[i], compare_thresholds[i]);
     }
 
     // User code must set PWM pins as outputs!
@@ -185,13 +161,10 @@ void fast_pwm_select_prescaler(enum prescalers prescaler)
     }
 }
 
-void fast_pwm_set_compare_counter_direct(uint8_t compare_index, uint8_t compare_threshold)
-{
-    *(_compare_regs)[compare_index] = compare_threshold;
-}
-
 void fast_pwm_set_compare_counter(enum pins_mcu pin_mcu, uint8_t compare_threshold)
 {
-    uint8_t index = read_compare_reg_index(pin_mcu);
-    fast_pwm_set_compare_counter_direct(index, compare_threshold);
+    // uint8_t index = read_compare_reg_index(pin_mcu);
+    volatile uint8_t* compare_register = resolve_compare_reg(pin_mcu);
+    // fast_pwm_set_compare_counter_direct(index, compare_threshold);
+    *(compare_register) = compare_threshold;
 }

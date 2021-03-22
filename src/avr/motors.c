@@ -79,90 +79,6 @@ uint8_t motor_init(enum pins_mcu motors_pins[MOTORS_NUM][HBRIDGE_PINS_PER_M])
     }
 
     return 1;
-
-//     // Set enable pin:
-//     _motor_l.enable_pin = motor_l_pins[ENABLE];
-//     _motor_r.enable_pin = motor_r_pins[ENABLE];
-
-//     // Resolve registers:
-//         // Port registers (phase pin only):
-//     _motor_l.phase_pin_port_reg = resolve_port_reg(motor_l_pins[PHASE]);
-//     _motor_r.phase_pin_port_reg = resolve_port_reg(motor_r_pins[PHASE]);
-
-//     for(uint8_t phase_enable_pin = 0; phase_enable_pin < HBRIDGE_PINS_PER_M; ++phase_enable_pin)
-//     {
-//         // Direction registers:
-//         _motor_l.direction_regs[phase_enable_pin] = resolve_direction_reg(motor_l_pins[phase_enable_pin]);
-//         _motor_r.direction_regs[phase_enable_pin] = resolve_direction_reg(motor_r_pins[phase_enable_pin]);
-
-//     // Set up the pin numbering offsets.
-//         _motor_l.pins_offset[phase_enable_pin] = resolve_pin_offset(motor_l_pins[phase_enable_pin]);
-//         _motor_r.pins_offset[phase_enable_pin] = resolve_pin_offset(motor_r_pins[phase_enable_pin]);
-//     }
-
-//     // Set up control pins as outputs.
-//         // Get the port registers for this:
-//     volatile uint8_t*** port_registers = (uint8_t*) malloc(MOTORS_NUM * HBRIDGE_PINS_PER_M * sizeof(uint8_t*));
-//     for(uint8_t motor = 0; motor < MOTORS_NUM; ++motor)
-//     {
-//         for(uint8_t pin = 0; pin < HBRIDGE_PINS_PER_M; ++pin)
-//         {
-//             uint8_t offset = 
-//             *(port_registers[motor][pin]) |= (1<<offset);
-//         }
-//     }
-
-//     uint8_t offset = _motor_l.pins_offset[PHASE];
-//     *(_motor_l.phase_pin_port_reg) |= (1<<offset);
-
-//     offset = _motor_r.pins_offset[phase_enable_pin];
-//     *(_motor_r.direction_regs[phase_enable_pin]) |= (1<<offset);
-//     //
-
-//     // Set the compare match flags to zero to start.
-//     fast_pwm_set_compare_counter(_motor_l.enable_pin, 0);
-//     fast_pwm_set_compare_counter(_motor_r.enable_pin, 0);
-// }
-
-// void motor_close()
-// {
-//     // Turn off the motors.
-//         // Set the phase pin logic levels low.
-//     *(_motor_l.phase_pin_port_reg) &= ~(1<<_motor_l.pins_offset[PHASE]);
-//     *(_motor_r.phase_pin_port_reg) &= ~(1<<_motor_r.pins_offset[PHASE]);
-    
-//         // Set the pwm compare match flags to zero.
-//     fast_pwm_set_compare_counter(_motor_l.enable_pin, 0);
-//     fast_pwm_set_compare_counter(_motor_r.enable_pin, 0);
-
-//         // Set both the phase and enable pins' direction registers low.
-//     for(uint8_t phase_enable_pin = 0; phase_enable_pin < HBRIDGE_PINS_PER_M; ++phase_enable_pin)
-//     {
-//         uint8_t offset = _motor_l.pins_offset[phase_enable_pin];
-//         *(_motor_l.direction_regs[phase_enable_pin]) &= ~(1<<offset);
-
-//         offset = _motor_r.pins_offset[phase_enable_pin];
-//         *(_motor_r.direction_regs[phase_enable_pin]) &= ~(1<<offset);
-//     }
-
-//     // Clear the data.
-//         // Port registers:
-//     _motor_l.phase_pin_port_reg = 0;
-//     _motor_r.phase_pin_port_reg = 0;
-//     for(uint8_t i = 0; i < HBRIDGE_PINS_PER_M; ++i)
-//     {
-//         // Direction registers:
-//         _motor_l.direction_regs[i] = 0;
-//         _motor_r.direction_regs[i] = 0;
-
-//         // Pin numbering offsets:
-//         _motor_l.pins_offset[i] = 0;
-//         _motor_r.pins_offset[i] = 0;
-//     }
-
-//         // Enable pin alises:
-//     _motor_l.enable_pin = 0;
-//     _motor_r.enable_pin = 0;
 }
 
 uint8_t speed_to_pwm_value(float speed)
@@ -221,18 +137,6 @@ void motor_move_direct(float speed, enum motor_direction direction, uint8_t moto
 
 void motor_move(float speed, enum motor_direction direction, enum motors motor)
 {
-    // struct _motor_info* motor_selected;
-    // switch(motor)
-    // {
-    //     case motor_left:
-    //         motor_selected = &_motor_l;
-    //         break;
-        
-    //     case motor_right:
-    //         motor_selected = &_motor_r;
-    //         break;
-    // }
-
     motor_move_direct(speed, direction, (uint8_t) motor);
 }
 

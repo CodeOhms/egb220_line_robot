@@ -18,12 +18,10 @@ void initialise(void)
     // led_init(led_pins);
 
     // Set up motors and pwm.
-    // enum pins_mcu motor_l_pins[HBRIDGE_PINS_PER_M] = { PB_Pin0, PB_Pin7 }; // Motor A.
-    // enum pins_mcu motor_l_pins[HBRIDGE_PINS_PER_M] = { PC_Pin6, PB_Pin7 }; // Motor A pro micro testing ONLY!
-    // enum pins_mcu motor_r_pins[HBRIDGE_PINS_PER_M] = { PE_Pin6, PD_Pin0 }; // Motor B.
+        // Pro micro testing ONLY!
     enum pins_mcu motors_pins[MOTORS_NUM][HBRIDGE_PINS_PER_M] = {
-        { PC_Pin6, PB_Pin7 }, // Motor A, pro micro testing ONLY!
-        { PE_Pin6, PD_Pin0 } //Motor B. 
+        { PC_Pin6, PB_Pin7 }, // Motor A.
+        { PE_Pin6, PD_Pin0 }, // Motor B. 
     };
 
         // Set up pwm.
