@@ -52,21 +52,10 @@ void motor_move_direct(float speed, enum motor_direction direction, uint8_t enab
 #endif //ENV_ARDUINO
 
 #ifdef ENV_AVR
-// struct _motor_info
-// {
-//     enum pwm_devices motor_selected;
-
-//     volatile uint8_t* phase_pin_port_reg;
-//     volatile uint8_t* direction_regs[HBRIDGE_PINS_PER_M];
-//     enum pins_mcu enable_pin;
-//     uint8_t pins_offset[HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E = PE_Pin6.
-// };
 struct _motor_info
 {
     enum pwm_devices motor_selected;
 
-    // volatile uint8_t* phase_pin_port_reg;
-    // volatile uint8_t* direction_regs[HBRIDGE_PINS_PER_M];
     volatile uint8_t* port_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
     volatile uint8_t* direction_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
     enum pins_mcu enable_pin[MOTORS_NUM];

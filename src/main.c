@@ -19,21 +19,21 @@ void line_following_robot(void)
 
     while(1)
     {
-        // Test motors.
+        // Test motors:
         motor_move(100.0, reverse, motor_left);
         motor_move(100.0, reverse, motor_right);
-        delay(5000);
+        delay(1000);
         motor_move(10.0, reverse, motor_left);
         motor_move(10.0, reverse, motor_right);
-        delay(5000);
+        delay(1000);
 
-        // motor_move(100.0, reverse, motor_left);
-        // motor_move(100.0, reverse, motor_right);
-        // delay(5000);
+        motor_move(100.0, forward, motor_left);
+        motor_move(100.0, forward, motor_right);
+        delay(1000);
 
-        // motor_move(10.0, reverse, motor_left);
-        // motor_move(10.0, reverse, motor_right);
-        // delay(5000);
+        motor_move(10.0, forward, motor_left);
+        motor_move(10.0, forward, motor_right);
+        delay(1000);
     }
 
     // Do not allow this function to return!

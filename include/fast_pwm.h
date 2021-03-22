@@ -41,7 +41,6 @@ void fast_pwm_close();
 
 void fast_pwm_select_prescaler(enum prescalers prescaler);
 
-void fast_pwm_set_compare_counter_direct(uint8_t compare_index, uint8_t compare_threshold);
 void fast_pwm_set_compare_counter(enum pins_mcu pin_mcu, uint8_t compare_threshold);
 
 #endif //FAST_PWM_H
