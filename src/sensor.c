@@ -17,7 +17,7 @@ void sen_5() {
 	ADCSRA |= (1<<ADSC); // start conversion
 
 	while(!(ADCSRA&(1<<ADIF))){} // Result now available.
-	uint16_t pot3 = ADCH;
+	uint16_t pot3 = 2.5 * ADCH;
 	if (pot3 > 50) {
 		PORTE = (1<<6);
 	}
@@ -32,7 +32,7 @@ void sen_4() {
 	ADCSRA |= (1<<6); // start converstion
 	while(!(ADCSRA&(1<<ADIF))){}
 	// Result now available.
-	uint16_t pot2 = ADCH;
+	uint16_t pot2 = 2.5 * ADCH;
 	if (pot2 > 50){
 		PORTB = (1<<2);
 	}
