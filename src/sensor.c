@@ -4,51 +4,64 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
-void adc_init(){
-	ADMUX |= (1<<REDS1)|(1<<REFS0)|(1<<ADLAR); // 2.56V ref, left adjusted
-	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start conversion
-	ADCSRA |= (1<<ADEN)|(1<<ADATE)|(1<<ADIE)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
-	ADCSRB = 0;
+// void adc_init()
+// 
+
+ISR(ADC_vect0)
+{
+  // Only read the sensor values.
 }
 
 void sen_5() {
-	ADMUX |= (1<<MUX1)|(1<<MUX0); //enable sensor 5
-	ADCSRB |= (1<<MUX5); // free running mode, mux 5 on
-	ADCSRA |= (1<<ADSC); // start conversion
+	ADMUX |= (1<<6)|(1<<5)|(1<<1)|(1<<0); //enable sensor 5, 5V ref, left adjusted
+	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start conversion
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
+	ADCSRB |= (1<<5); // free running mode, mux 5 on
+	ADCSRA |= (1<<6); // start conversion
 
-	while(!(ADCSRA&(1<<ADIF))){} // Result now available.
-	uint16_t pot3 = 2.5 * ADCH;
-	if (pot3 > 50) {
+	while(~ADCSRA&(1<<ADIF)){} // Result now available.
+	uint16_t pot2 = ADCH;
+	if (pot2 < 50) {
 		PORTE = (1<<6);
 	}
 	else{
 		PORTE &= ~(1<<6);
 	}
-		ADCSRA |= (1<<ADIF); // Clear AD Flag BIT (leave at 1)
+		ADCSRA |= (1<<ADIF); //clear adif
+		ADCSRA &= ~(1<<6); //stop conversion
+		ADMUX &= ~(1<<1)|(1<<0); // clear admux channels
+		ADCSRB &= ~(1<<5); // clear admux channels
 }
 
 void sen_4() {
-	ADMUX |= (1<<MUX2); // enable sensor 4
-	ADCSRA |= (1<<6); // start converstion
-	while(!(ADCSRA&(1<<ADIF))){}
+   // Start single conversion by setting ADSC bit in ADCSRA
+	ADMUX |= (1<<6)|(1<<5)|(1<<2)|(1<<1)|(1<<0); // enable sensor 4, 5V ref. left adjusted.
+	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
+	ADCSRB = 0; // free running mode
+	ADCSRA |= (1<<6); // start conversion
+
+	while(~ADCSRA&(1<<ADIF)){}
 	// Result now available.
-	uint16_t pot2 = 2.5 * ADCH;
-	if (pot2 > 50){
+	uint16_t pot3 = ADCH;
+	if (pot3 < 50){
 		PORTB = (1<<2);
+		ADCSRA |= (0<<ADIF);
 	}
 	else{
 		PORTB &= ~(1<<2);
 	}
-		ADCSRA |= (1<<ADIF); // CLEAR FLAG
+		ADCSRA |= (1<<ADIF); // clear ADIF 
+		ADCSRA &= ~(1<<6); // stop conversion
+		ADMUX &= ~(1<<2)|(1<<1)|(1<<1); // clear admux channels
 }
 
 int main(){
-	adc_init();
-	DDRB |= (1<<2); // set LED 0
-	DDRE |= (1<<6); // set LED 3
-	
+	DDRB |= (1<<2); // set LED 3
+	DDRE |= (1<<6); // set LED 0
 	while(1) {
 	sen_5();
+  // System logic for driving
 	sen_4();
 	}
 }
