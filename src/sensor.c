@@ -4,29 +4,27 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
+uint16_t pot3;
 uint16_t pot4;
 uint16_t pot5;
+uint16_t pot6;
 
 void pwm_init(){
-	// motor A uses OCR0A
-	// motor A uses OCR0B
-
-	// fast PWM mode
-	TCCR0A &= ~(1<<WGM02);
-	TCCR0A |= (1<<WGM01);
 	TCCR0A |= (1<<WGM00);
+	TCCR0A |= (1<<WGM01);
+	TCCR0A &= ~(1<<WGM02);
 
-	// clk/1024 from prescaler
 	TCCR0B |= (1<<CS02);
-	TCCR0B &= ~(1<<CS01); 
+	TCCR0B &= ~(1<<CS01);
 	TCCR0B &= ~(1<<CS00);
-	
-	TCCR0A |= (1<<COM0B1); 
+
+	TCCR0A |= (1<<COM0B1);
 	TCCR0A &= ~(1<<COM0B0);
 
-	TCCR0A |= (1<<COM0A1); 
+	TCCR0A |= (1<<COM0A1);
 	TCCR0A &= ~(1<<COM0A0);
-
+	// motor A uses OCR0A
+	// motor A uses OCR0B
 }
 
 ISR(ADC_vect0)
@@ -34,86 +32,124 @@ ISR(ADC_vect0)
   // Only read the sensor values.
 }
 
-void adc_init() {
-	ADMUX |= (1<<REFS0)|(1<<ADLAR); // 5V ref, left adjusted
-	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128
-	ADCSRA |= (1<<ADEN)|(1<ADATE)|(1<<ADIF)|(1<<ADIE)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
-	ADCSRB = 0; // free running mode
-}
-
-void sen_5() {
-	ADMUX |= (1<<MUX1)|(1<<MUX0); // enable ADC11
-	ADCSRB |= (1<<MUX5); 
-
-	ADCSRA |= (1<<ADSC); // start conversion
+void sen_6() {
+	ADMUX |= (1<<6)|(1<<5)|(1<<1); //enable adc10, 5V ref, left adjusted
+	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start conversion
+	ADCSRA |= (1<<7)|1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
+	ADCSRB |= (1<<5); // free running mode, mux 5 on
+	ADCSRA |= (1<<6); // start conversion
 
 	while(~ADCSRA&(1<<ADIF)){} // Result now available.
 	pot5 = ADCH;
-	ADCSRA |= (1<<ADIF); //clear adif
-	ADCSRA &= ~(1<<ADSC); // stop conversion
-	ADMUX &= ~(1<<MUX1)|(1<<MUX0); // clear admux channels
-	ADCSRB &= ~(1<<MUX5); 
+		ADCSRA |= (1<<ADIF); //clear adif
+		ADCSRA &= ~(1<<6); // stop conversion
+		ADMUX &= ~(1<<1); // clear admux channels
+		ADCSRB &= ~(1<<5); // clear admux channels
 }
 
-void sen_4() {
-	ADMUX |= (1<<MUX2)|(1<<MUX1)|(1<<MUX0); // enable ADC7 
+void sen_5() {
+	ADMUX |= (1<<6)|(1<<5)|(1<<1)|(1<<0); //enable adc11, 5V ref, left adjusted
+	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start conversion
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
+	ADCSRB |= (1<<5); // free running mode, mux 5 on
+	ADCSRA |= (1<<6); // start conversion
 
-	ADCSRA |= (1<<ADSC); // start conversion
+	while(~ADCSRA&(1<<ADIF)){} // Result now available.
+	pot5 = ADCH;
+		ADCSRA |= (1<<ADIF); //clear adif
+		ADCSRA &= ~(1<<6); // stop conversion
+		ADMUX &= ~(1<<1)|(1<<0); // clear admux channels
+		ADCSRB &= ~(1<<5); // clear admux channels
+}
+
+void sen_4() { // Start single conversion by setting ADSC bit in ADCSRA
+	ADMUX |= (1<<6)|(1<<5)|(1<<2)|(1<<1)|(1<<0); // enable adc7, 5V ref. left adjusted.
+	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
+	ADCSRB = 0; // free running mode
+	ADCSRA |= (1<<6); // start conversion
 
 	while(~ADCSRA&(1<<ADIF)){}
-	pot4 = ADCH;
-	ADCSRA |= (1<<ADIF); // clear ADIF 
-	ADCSRA &= ~(1<<ADSC); // stop conversion
-	ADMUX &= ~(1<<MUX2)|(1<<MUX1)|(1<<MUX0); // clear admux channels
+	// Result now available.
+	  pot4 = ADCH;
+		ADCSRA |= (1<<ADIF); // clear ADIF 
+		ADCSRA &= ~(1<<6); // stop conversion
+		ADMUX &= ~(1<<2)|(1<<1)|(1<<0); // clear admux channels
+}
+void sen_3() { // Start single conversion by setting ADSC bit in ADCSRA
+	ADMUX |= (1<<6)|(1<<5)|(1<<2)|(1<<1); // enable adc6, 5V ref. left adjusted.
+	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
+	ADCSRB = 0; // free running mode
+	ADCSRA |= (1<<6); // start conversion
+
+	while(~ADCSRA&(1<<ADIF)){}
+	// Result now available.
+	  pot3 = ADCH;
+		ADCSRA |= (1<<ADIF); // clear ADIF 
+		ADCSRA &= ~(1<<6); // stop conversion
+		ADMUX &= ~(1<<2)|(1<<1); // clear admux channels
 }
 
 int main(){
 
-	// Set Motor A
-	DDRB |= (1<<0);
-	DDRB |= (1<<7);
-	// Set Motor B
-	DDRE |= (1<<6); 
-	DDRD |= (1<<0);
+	//Motor 2
+	DDRB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+	DDRB |= (1<<7); // Set Bit/Pin 0 to 1/Output
+	//Motor 1
+	DDRE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+	DDRD |= (1<<0); // Set Bit/Pin 0 to 1/Output
 
 	pwm_init();
 
 	while(1) {
+		//sen_6();
 		sen_5();
 		sen_4();
-		// if both sensors see the line, go half speed.
+		//sen_3();
+
 		if (pot4 < 237 && pot5 < 237) {
-			PORTB |= (1<<0); 
-			OCR0A = 127; 
+			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
-			PORTE |= (1<<6);
-			OCR0B = 127; 
+			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+			OCR0B = 130;
 		}		
-		// If sensor 4 does not see line & sensor 5 does, speed up motor-a, slow down motor-b
 		else if(pot4 >= 237 && pot5 < 237){
-			PORTB |= (1<<0); 
-			OCR0A = 132; 
+			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
-			PORTE |= (1<<6);
-			OCR0B = 122;
+			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+			OCR0B = 115;
 		}
-		// If sensor 4 sees line & sensor 5 does not, slow down motor-a, speed up motor-b
 		else if(pot4 < 237 && pot5 >= 237){
-			PORTB |= (1<<0);
-			OCR0A = 122; 
+			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+			OCR0A = 115; // Set Bit/Pin 0 to 1/Output
 
-			PORTE |= (1<<6);
-			OCR0B = 132;
+			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+			OCR0B = 120;
 		}
-		
-		else{ // if neither sensor sees the line, turn off
-			PORTB &= ~(1<<0);
-			//PORTB &= ~(1<<7);
-			OCR0A = 0;
+		//else if(pot3 >= 230 && pot6 < 230){
+		//	PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+		//	OCR0A = 150; // Set Bit/Pin 0 to 1/Output
 
-			PORTE &= ~(1<<6); 
-			//PORTD &= ~(1<<0);
-			OCR0B = 0;
+		//	PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+		//	OCR0B = 90;
+		//}
+		//else if(pot3 < 230 && pot6 >= 230){
+		//	PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+		//	OCR0A = 90; // Set Bit/Pin 0 to 1/Output
+
+		//	PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+		//	OCR0B = 150;
+		//}
+		
+		else{
+			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+			OCR0A = 0; // Set Bit/Pin 0 to 1/Output
+
+			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+			OCR0B = 100;
 		}
 	}
 }
