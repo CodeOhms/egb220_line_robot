@@ -162,3 +162,39 @@ int main(){
 		}
 	}
 }
+
+for ( int i; i < 8; i++ ) {
+		pot[i] = adcread(i);
+		if (sensor_data[i] > 235) {
+			sensor_bool[i] = 1;
+		} else {
+			sensor_bool[i] = 0;
+		}
+	}
+
+	if (sensor_bool[0] == 1) {
+		position = position + 1;
+	}
+	if (sensor_boolean[1] == 1) {
+		position = position + 1;
+	}
+	if (sensor_boolean[2] == 1) {
+		position = position + 1;
+	}
+	if (sensor_boolean[3] == 1) {
+		position = position + 1;
+	}
+
+	if (sensor_boolean[4] == 1) {
+		position = position - 1;
+	}
+	if (sensor_boolean[5] == 1) {
+		position = position - 1;
+	}
+	if (sensor_boolean[6] == 1) {
+		position = position - 1;
+	}
+	if (sensor_boolean[7] == 1) {
+		position = position - 1;
+	}
+
