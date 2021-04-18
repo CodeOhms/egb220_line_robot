@@ -38,7 +38,6 @@ meaning the H bridge operates in PHASE/ENABLE mode.
 H Bridge datasheet: https://www.ti.com/product/DRV8835?HQS=TI-null-null-octopart-df-pf-null-wwe
 Additional explaination of H bridge: https://www.pololu.com/product/2753
 */
-uint8_t motor_init(enum pins_mcu motors_pins[MOTORS_NUM][HBRIDGE_PINS_PER_M]);
 
 void motor_close();
 
@@ -52,15 +51,15 @@ void motor_move_direct(float speed, enum motor_direction direction, uint8_t enab
 #endif //ENV_ARDUINO
 
 #ifdef ENV_AVR
-struct _motor_info
+typedef struct motors_info_t
 {
-    enum pwm_devices motor_selected;
-
     volatile uint8_t* port_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
-    volatile uint8_t* direction_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
-    enum pins_mcu enable_pin[MOTORS_NUM];
-    uint8_t pins_offset[MOTORS_NUM][HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E = PE_Pin6.
-};
+    volatile uint8_t* direction_regs[MOTORS_NUM];
+    volatile uint8_t* compare_regs[MOTORS_NUM];
+    uint8_t pins_offset[MOTORS_NUM][HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E is PE6.
+} motors_info;
+
+uint8_t motor_init(motors_info motors);
 
 void motor_move_direct(float speed, enum motor_direction direction, uint8_t motor_selected);
 #endif //ENV_AVR

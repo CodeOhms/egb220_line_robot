@@ -7,76 +7,65 @@
 #include "motors.h"
 #include "fast_pwm.h"
 
-// struct _motor_info _motor_l;
-// struct _motor_info _motor_r;
-struct _motor_info _motors;
+motors_info _motors;
 
-/*
-Callback functions that is given to the fast pwm ISR.
-Responsible for toggling the enable pin, for
-specified motor, to generate a PWM signal.
-*/
-// void motor_l_pwm_event(void)
-// {
-//     uint8_t offset = _motor_l.pins_offset[ENABLE];
-//     *(_motor_l.direction_regs[ENABLE]) ^= (1<<offset);
-// }
-// void motor_r_pwm_event(void)
-// {
-//     uint8_t offset = _motor_r.pins_offset[ENABLE];
-//     *(_motor_r.direction_regs[ENABLE]) ^= (1<<offset);
-// }
-
-/*
-This is only needed during initialisation and shutdown of this code.
-*/
-void get_motor_port_regs(volatile uint8_t** port_registers)
+uint8_t motor_init(motors_info motors)
 {
-
-}
-
-// uint8_t motor_init(enum pins_mcu* motor_l_pins, enum pins_mcu* motor_r_pins)
-uint8_t motor_init(enum pins_mcu motors_pins[MOTORS_NUM][HBRIDGE_PINS_PER_M])
-{
-    // Set up pwm device identifiers.
-    // _motor_l.motor_selected = pwm_motor_left;
-    // _motor_r.motor_selected = pwm_motor_right;
-
     if(!_fast_pwm_is_initialised)
     {
         return 0;
     }
 
-    for(uint8_t motor = 0; motor < MOTORS_NUM; ++motor)
+    for(uint8_t m = 0; m < MOTORS_NUM; ++m)
     {
-        // Set up enable pins alises:
-        _motors.enable_pin[motor] = motors_pins[motor][ENABLE];
+        // Copy data to local struct:
+            // Copy compare registers:
+        _motors.compare_regs[m] = motors.compare_regs[m];
+            // Copy direction registers:
+        _motors.direction_regs[m] = motors.direction_regs[m];
 
-        // uint8_t index_phase = arrays_multidim_get_index(motor, HBRIDGE_PINS_PER_M, PHASE);
-        // uint8_t index_enable = arrays_multidim_get_index(motor, HBRIDGE_PINS_PER_M, ENABLE);
+        for(uint8_t p = 0; p < HBRIDGE_PINS_PER_M; ++p)
+        {
+                // Copy port registers:
+            _motors.port_regs[m][p] = motors.port_regs[m][p];
+                // Copy pin offsets:
+            _motors.pins_offset[m][p] = motors.pins_offset[m][p];
 
-    // Resolve registers:
-        // Port registers:
-        _motors.port_regs[motor][PHASE] = resolve_port_reg(motors_pins[motor][PHASE]);
-        _motors.port_regs[motor][ENABLE] = resolve_port_reg(motors_pins[motor][ENABLE]);
-
-        // Direction registers:
-        _motors.direction_regs[motor][PHASE] = resolve_direction_reg(motors_pins[motor][PHASE]);
-        _motors.direction_regs[motor][ENABLE] = resolve_direction_reg(motors_pins[motor][ENABLE]);
-    
-    // Resolve pin numbering offsets:
-        _motors.pins_offset[motor][PHASE] = resolve_pin_offset(motors_pins[motor][PHASE]);
-        _motors.pins_offset[motor][ENABLE] = resolve_pin_offset(motors_pins[motor][ENABLE]);
-
-    // Setup pins as outputs:
-        uint8_t offset = _motors.pins_offset[motor][PHASE];
-        *(_motors.direction_regs[motor][PHASE]) |= (1<<offset); 
-        offset = _motors.pins_offset[motor][ENABLE];
-        *(_motors.direction_regs[motor][ENABLE]) |= (1<<offset);
-
-    // Set the compare match flags to zero to start.
-        fast_pwm_set_compare_counter(motors_pins[motor][ENABLE], 0);
+            // Setup pins as outputs:
+            _motors.direction_regs[m][p] = ;
+        }
     }
+
+
+
+
+    // for(uint8_t motor = 0; motor < MOTORS_NUM; ++motor)
+    // {
+    //     // Set up enable pins alises:
+    //     _motors.enable_pin[motor] = motors_pins[motor][ENABLE];
+
+    // // Resolve registers:
+    //     // Port registers:
+    //     _motors.port_regs[motor][PHASE] = resolve_port_reg(motors_pins[motor][PHASE]);
+    //     _motors.port_regs[motor][ENABLE] = resolve_port_reg(motors_pins[motor][ENABLE]);
+
+    //     // Direction registers:
+    //     _motors.direction_regs[motor][PHASE] = resolve_direction_reg(motors_pins[motor][PHASE]);
+    //     _motors.direction_regs[motor][ENABLE] = resolve_direction_reg(motors_pins[motor][ENABLE]);
+    
+    // // Resolve pin numbering offsets:
+    //     _motors.pins_offset[motor][PHASE] = resolve_pin_offset(motors_pins[motor][PHASE]);
+    //     _motors.pins_offset[motor][ENABLE] = resolve_pin_offset(motors_pins[motor][ENABLE]);
+
+    // // Setup pins as outputs:
+    //     uint8_t offset = _motors.pins_offset[motor][PHASE];
+    //     *(_motors.direction_regs[motor][PHASE]) |= (1<<offset); 
+    //     offset = _motors.pins_offset[motor][ENABLE];
+    //     *(_motors.direction_regs[motor][ENABLE]) |= (1<<offset);
+
+    // // Set the compare match flags to zero to start.
+    //     fast_pwm_set_compare_counter(motors_pins[motor][ENABLE], 0);
+    // }
 
     return 1;
 }
