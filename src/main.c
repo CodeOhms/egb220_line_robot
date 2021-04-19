@@ -1,4 +1,5 @@
 #include "initialise.h"
+#include "peripherals.h"
 #include "motors.h"
 
 #ifdef ENV_AVR
@@ -15,24 +16,22 @@ void delay(double ms)
 // Use this as our "int main(void)" replacement.
 void line_following_robot(void)
 {
-    initialise();
-
     while(1)
     {
         // Test motors:
-        motor_move(100.0, reverse, motor_left);
-        motor_move(100.0, reverse, motor_right);
+        motor_move(90.0, reverse, MOTOR_A);
+        motor_move(90.0, reverse, MOTOR_B);
         delay(1000);
-        motor_move(10.0, reverse, motor_left);
-        motor_move(10.0, reverse, motor_right);
-        delay(1000);
-
-        motor_move(100.0, forward, motor_left);
-        motor_move(100.0, forward, motor_right);
+        motor_move(90.0, reverse, MOTOR_A);
+        motor_move(90.0, reverse, MOTOR_B);
         delay(1000);
 
-        motor_move(10.0, forward, motor_left);
-        motor_move(10.0, forward, motor_right);
+        motor_move(10.0, forward, MOTOR_A);
+        motor_move(10.0, forward, MOTOR_B);
+        delay(1000);
+
+        motor_move(10.0, forward, MOTOR_A);
+        motor_move(10.0, forward, MOTOR_B);
         delay(1000);
     }
 
@@ -43,6 +42,7 @@ void line_following_robot(void)
 
 int main(void)
 {
+    initialise();
     line_following_robot();
 
     return 0;

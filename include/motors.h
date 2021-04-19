@@ -1,8 +1,9 @@
 #ifndef   MOTORS_H
 #define   MOTORS_H
 
-#include "arrays_multidimensional.h"
-#include "pins.h"
+#include <avr/io.h>
+
+// #include "pins.h"
 #include "peripherals.h"
 
 #define MOTORS_NUM 2
@@ -53,17 +54,18 @@ void motor_move_direct(float speed, enum motor_direction direction, uint8_t enab
 #ifdef ENV_AVR
 typedef struct motors_info_t
 {
-    volatile uint8_t* port_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
-    volatile uint8_t* direction_regs[MOTORS_NUM];
+    volatile uint8_t* port_regs[MOTORS_NUM];
+    volatile uint8_t* direction_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
     volatile uint8_t* compare_regs[MOTORS_NUM];
     uint8_t pins_offset[MOTORS_NUM][HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E is PE6.
 } motors_info;
 
-uint8_t motor_init(motors_info motors);
+extern motors_info _motors;
 
-void motor_move_direct(float speed, enum motor_direction direction, uint8_t motor_selected);
+// uint8_t motor_init(motors_info motors);
+
 #endif //ENV_AVR
+void motor_init();
 
-void motor_move(float speed, enum motor_direction direction, enum motors motor);
-
+void motor_move(float speed, enum motor_direction direction, uint8_t motor_selected);
 #endif //MOTORS_H
