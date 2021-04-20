@@ -42,7 +42,7 @@ void sen_6() {
 	ADCSRA |= (1<<6); // start conversion
 
 	while(~ADCSRA&(1<<ADIF)){} // Result now available.
-	pot6 = ADCH;
+	pot5 = ADCH;
 		ADCSRA |= (1<<ADIF); //clear adif
 		ADCSRA &= ~(1<<6); // stop conversion
 		ADMUX &= ~(1<<1); // clear admux channels
@@ -110,29 +110,43 @@ int main(){
 		sen_4();
 		//sen_3();
 
-		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { // if both sensors see the line, go straight
+		if (pot4 < TOLERANCE && pot5 < TOLERANCE) {
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 130; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
 			OCR0B = 130;
 		}		
-		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if sensor 5 sees the line, veer left (motor B slows slightly)
+		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
 			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
 			OCR0B = 115;
 		}
-		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ // if sensor 6 sees the line, veer right (motor A slows slightly)
+		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
 			OCR0A = 115; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
 			OCR0B = 120;
 		}
+		//else if(pot3 >= 230 && pot6 < 230){
+		//	PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+		//	OCR0A = 150; // Set Bit/Pin 0 to 1/Output
+
+		//	PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+		//	OCR0B = 90;
+		//}
+		//else if(pot3 < 230 && pot6 >= 230){
+		//	PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+		//	OCRA = 90; // Set Bit/Pin 0 to 1/Output
+
+		//	PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+		//	OCR0B = 150;
+		//}
 		
-		else{ //else turn right
+		else{
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
 			OCR0A = 0; // Set Bit/Pin 0 to 1/Output
 
