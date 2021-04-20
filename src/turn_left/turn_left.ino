@@ -42,7 +42,7 @@ void sen_6() {
 	ADCSRA |= (1<<6); // start conversion
 
 	while(~ADCSRA&(1<<ADIF)){} // Result now available.
-	pot5 = ADCH;
+	pot6 = ADCH;
 		ADCSRA |= (1<<ADIF); //clear adif
 		ADCSRA &= ~(1<<6); // stop conversion
 		ADMUX &= ~(1<<1); // clear admux channels
@@ -112,7 +112,7 @@ int main(){
 
 		if (pot4 < TOLERANCE && pot5 < TOLERANCE) {
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 130; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
 			OCR0B = 130;
@@ -131,20 +131,6 @@ int main(){
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
 			OCR0B = 120;
 		}
-		//else if(pot3 >= 230 && pot6 < 230){
-		//	PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-		//	OCR0A = 150; // Set Bit/Pin 0 to 1/Output
-
-		//	PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-		//	OCR0B = 90;
-		//}
-		//else if(pot3 < 230 && pot6 >= 230){
-		//	PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-		//	OCRA = 90; // Set Bit/Pin 0 to 1/Output
-
-		//	PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-		//	OCR0B = 150;
-		//}
 		
 		else{
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
