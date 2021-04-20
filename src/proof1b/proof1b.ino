@@ -4,6 +4,8 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
+#define TOLERANCE 100
+
 uint16_t pot3;
 uint16_t pot4;
 uint16_t pot5;
@@ -108,28 +110,28 @@ int main(){
     sen_4();
     sen_3();
 
-    if (pot4 < 237 && pot5 < 237) {// if sensor 5 & 6 see line go straight
+    if (pot4 < TOLERANCE && pot5 < TOLERANCE) {// if sensor 5 & 6 see line go straight
       PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
       OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
       PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
       OCR0B = 130;
     }   
-    else if(pot3 < 237 && pot6 < 237){ 
+    else if(pot3 < TOLERANCE && pot6 < TOLERANCE){ 
       PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
       OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
       PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
       OCR0B = 120;
     }
-    else if(pot4 >= 237 && pot5 < 237){ // if sensor 5 sees line and 4 does not, slight veer left
+    else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if sensor 5 sees line and 4 does not, slight veer left
       PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
       OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
       PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
       OCR0B = 115;
     }
-    else if(pot4 < 237 && pot5 >= 237){ //if sensor 4 sees line and 5 does not, slight veer right
+    else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ //if sensor 4 sees line and 5 does not, slight veer right
       PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
       OCR0A = 115; // Set Bit/Pin 0 to 1/Output
 
@@ -137,14 +139,14 @@ int main(){
       OCR0B = 120;
     }
 
-    else if(pot6 < 237){ // if sensor 6 sees line, turn off motor b, slow down motor a to incrementally turn
+    else if(pot6 < TOLERANCE){ // if sensor 6 sees line, turn off motor b, slow down motor a to incrementally turn
       PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
       OCR0A = 100; // Set Bit/Pin 0 to 1/Output
 
       PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
       OCR0B = 0;
     }
-    else if(pot3 < 237){ // if sensor 3 sees line, turn off motor a, slow down motor b to incrementally turn
+    else if(pot3 < TOLERANCE){ // if sensor 3 sees line, turn off motor a, slow down motor b to incrementally turn
       PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
       OCR0A = 0; // Set Bit/Pin 0 to 1/Output
 
