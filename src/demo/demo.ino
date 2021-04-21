@@ -42,7 +42,7 @@ void sen_6() {
 	ADCSRA |= (1<<6); // start conversion
 
 	while(~ADCSRA&(1<<ADIF)){} // Result now available.
-	pot5 = ADCH;
+	pot6 = ADCH;
 		ADCSRA |= (1<<ADIF); //clear adif
 		ADCSRA &= ~(1<<6); // stop conversion
 		ADMUX &= ~(1<<1); // clear admux channels
@@ -60,7 +60,7 @@ void sen_5() {
 	pot5 = ADCH;
 		ADCSRA |= (1<<ADIF); //clear adif
 		ADCSRA &= ~(1<<6); // stop conversion
-		ADMUX &= ~(1<<1)|(1<<0); // clear admux channels
+		ADMUX &= ~((1<<1)|(1<<0)); // clear admux channels
 		ADCSRB &= ~(1<<5); // clear admux channels
 }
 
@@ -76,7 +76,7 @@ void sen_4() { // Start single conversion by setting ADSC bit in ADCSRA
 	  pot4 = ADCH;
 		ADCSRA |= (1<<ADIF); // clear ADIF 
 		ADCSRA &= ~(1<<6); // stop conversion
-		ADMUX &= ~(1<<2)|(1<<1)|(1<<0); // clear admux channels
+		ADMUX &= ~((1<<2)|(1<<1)|(1<<0)); // clear admux channels
 }
 void sen_3() { // Start single conversion by setting ADSC bit in ADCSRA
 	ADMUX |= (1<<6)|(1<<5)|(1<<2)|(1<<1); // enable adc6, 5V ref. left adjusted.
@@ -90,7 +90,7 @@ void sen_3() { // Start single conversion by setting ADSC bit in ADCSRA
 	  pot3 = ADCH;
 		ADCSRA |= (1<<ADIF); // clear ADIF 
 		ADCSRA &= ~(1<<6); // stop conversion
-		ADMUX &= ~(1<<2)|(1<<1); // clear admux channels
+		ADMUX &= ~((1<<2)|(1<<1)); // clear admux channels
 }
 
 int main(){
@@ -105,38 +105,60 @@ int main(){
 	pwm_init();
 
 	while(1) {
-		//sen_6();
+		sen_6();
 		sen_5();
 		sen_4();
-		//sen_3();
+		sen_3();
 
-		if (pot4 < TOLERANCE && pot5 < TOLERANCE) {
+		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { // If 4 & 5 see line, go straight
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 80; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 80;
+			OCR0B = 100;
 		}		
-		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){
+		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if 5 sees line and 4 does not veer left
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 80; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 78;
+			OCR0B = 95;
 		}
-		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){
+		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ // if 4 sees line and 5 does not veer right
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 78; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 95; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 80;
+			OCR0B = 100;
 		}
-		else{
+		
+		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){ // if 3 & 6 see line go straight (intersection)
+			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
+
+			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+			OCR0B = 100;
+		}
+		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){ // if 6 sees line and 3 does not turn off motor A, slow down motor B (turn left)
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
 			OCR0A = 0; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 70;
+			OCR0B = 90;
+		}
+		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){ // if 3 sees line and 6 does not turn off motor B, slow down motor A (turn right)
+			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+			OCR0A = 90; // Set Bit/Pin 0 to 1/Output
+
+			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+			OCR0B = 0;
+		}
+		else{ // slow down
+			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
+			OCR0A = 50; // Set Bit/Pin 0 to 1/Output
+
+			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
+			OCR0B = 50;
 		}
 	}
 }
