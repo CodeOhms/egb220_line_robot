@@ -6,7 +6,6 @@
 // #include "pins.h"
 #include "peripherals.h"
 
-#define MOTORS_NUM 2
 #define HBRIDGE_PINS_PER_M 2
 #define PHASE 0
 #define ENABLE 1
@@ -57,10 +56,10 @@ typedef struct motors_info_t
     volatile uint8_t* port_regs[MOTORS_NUM];
     volatile uint8_t* direction_regs[MOTORS_NUM][HBRIDGE_PINS_PER_M];
     volatile uint8_t* compare_regs[MOTORS_NUM];
-    uint8_t pins_offset[MOTORS_NUM][HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E is PE6.
+    const uint8_t pins_offset[MOTORS_NUM][HBRIDGE_PINS_PER_M]; // E.G. offset 6 with port E is PE6.
 } motors_info;
 
-extern motors_info _motors;
+extern const motors_info _motors;
 
 // uint8_t motor_init(motors_info motors);
 

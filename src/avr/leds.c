@@ -1,50 +1,33 @@
-#ifdef ASDF
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <avr/io.h>
 
 #include "leds.h"
 
-uint8_t _num_pins = 0;
-uint8_t* _led_pins = 0;
-
-void led_init(enum pins_mcu* led_pins, uint8_t num_pins)
+void led_init()
 {
-    // Allocate dynamic memory for led_pins 'array'.
-    _num_pins = num_pins;
-    _led_pins = (uint8_t*) malloc(sizeof(uint8_t*) * num_pins);
-
-    // Copy the array into led_pins.
-    for(uint8_t i = 0; i < _num_pins; ++i)
+    for(uint8_t l = 0; l < MOTORS_NUM; ++l)
     {
-        _led_pins[i] = led_pins[i];
-    }
-
-    // Setup led pins for output mode.
-    for(uint8_t i = 0; i < _num_pins; ++i)
-    {
-        // pinMode(_led_pins[i], OUTPUT);
-        
+    // Setup pins as outputs:
+        *(_leds.direction_regs[l]) |= (1<<_leds.pins_offset[l]);
+    
+    // Initialise LEDs as off:
+        *(_leds.port_regs[l]) &= ~(1<<_leds.pins_offset[l]);
     }
 }
 
 void led_close()
 {
     // Turn off the leds.
-    for(uint8_t i = 0; i < _num_pins; ++i)
+    for(uint8_t l = 0; l < LEDS_NUM; ++l)
     {
-        // digitalWrite(_led_pins[i], LOW);
+        *(_leds.port_regs[l]) &= ~(1<<_leds.pins_offset[l]);
     }
-
-    // Free allocated memory.
-    free(_led_pins);
-    _num_pins = 0;
 }
 
 uint8_t led_exists(uint8_t led_index)
 {
-    if(led_index > _num_pins -1)
+    if(led_index > LEDS_NUM -1)
     { // Led out of range!
         return 0;
     }
@@ -54,7 +37,7 @@ uint8_t led_exists(uint8_t led_index)
     }
 }
 
-uint8_t led_enable(uint8_t led_index)
+uint8_t led_on(uint8_t led_index)
 {
     if(!led_exists(led_index))
     {
@@ -62,7 +45,21 @@ uint8_t led_enable(uint8_t led_index)
     }
     else
     {
-        // pinMode(_led_pins[led_index], OUTPUT);
+        *(_leds.port_regs[led_index]) |= (1<<_leds.pins_offset[led_index]);
+        return 1;
+    }
+    return 0; // Something went wrong.
+}
+
+uint8_t led_off(uint8_t led_index)
+{
+    if(!led_exists(led_index))
+    {
+        return 0;
+    }
+    else
+    {
+        *(_leds.port_regs[led_index]) &= ~(1<<_leds.pins_offset[led_index]);
         return 1;
     }
     return 0; // Something went wrong.
@@ -76,20 +73,8 @@ uint8_t led_toggle(uint8_t led_index)
     }
     else
     {
-        // digitalWrite(_led_pins[led_index], !digitalRead(_led_pins[led_index]));
+        *(_leds.port_regs[led_index]) ^= (1<<_leds.pins_offset[led_index]);
         return 1;
     }
     return 0; // Something went wrong.
 }
-
-uint8_t led_builtin_enable(enum leds led_id)
-{
-    return led_enable((uint8_t) led_id);
-}
-
-uint8_t led_builtin_toggle(enum leds led_id)
-{
-    return led_toggle((uint8_t) led_id);
-}
-
-#endif
