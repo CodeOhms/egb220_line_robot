@@ -1,15 +1,13 @@
 #ifndef  FAST_PWM_H
 #define  FAST_PWM_H
 
-// #include "pins.h"
-
 /*
 PWM resoultion of 256 values (0 -> 255 inclusive).
 */
 
 extern uint8_t _fast_pwm_is_initialised;
 
-enum prescalers
+enum pwm_prescalers
 {
     no_clock_source,
     no_prescaler,
@@ -34,13 +32,13 @@ Needs:
 
 NOTE: this will not setup the pins as outputs, caller code must do this!
 */
-// uint8_t fast_pwm_init(enum prescalers prescaler, uint8_t pwm_inverted, uint8_t* compare_thresholds,
+// uint8_t fast_pwm_init(enum pwm_prescalers prescaler, uint8_t pwm_inverted, uint8_t* compare_thresholds,
 //                       enum pins_mcu* pins, uint8_t num_pins);
-uint8_t fast_pwm_init(enum prescalers prescaler, uint8_t pwm_inverted);
+uint8_t fast_pwm_init(enum pwm_prescalers prescaler, uint8_t pwm_inverted);
 
 void fast_pwm_close();
 
-void fast_pwm_select_prescaler(enum prescalers prescaler);
+void fast_pwm_select_prescaler(enum pwm_prescalers prescaler);
 
 // void fast_pwm_set_compare_counter(enum pins_mcu pin_mcu, uint8_t compare_threshold);
 

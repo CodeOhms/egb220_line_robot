@@ -28,7 +28,7 @@ void pwm_non_inverted()
 	TCCR0A &= ~(1<<COM0B0);
 }
 
-uint8_t fast_pwm_init(enum prescalers prescaler, uint8_t pwm_is_inverted)
+uint8_t fast_pwm_init(enum pwm_prescalers prescaler, uint8_t pwm_is_inverted)
 {
     // Set up fast pwm with default TOP of 0xFF (255):
     TCCR0A |= (1<<WGM00);
@@ -68,7 +68,7 @@ void fast_pwm_close()
     _fast_pwm_is_initialised = 0;
 }
 
-void fast_pwm_select_prescaler(enum prescalers prescaler)
+void fast_pwm_select_prescaler(enum pwm_prescalers prescaler)
 {
     switch(prescaler)
     {
