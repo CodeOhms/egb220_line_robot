@@ -5,6 +5,8 @@
 
 #include <avr/io.h>
 
+#include "peripherals.h"
+
 enum voltage_reference
 {
     internal_off,
@@ -55,9 +57,23 @@ void adc_set_trigger(uint8_t auto_trig, enum auto_trigger_source auto_trig_sourc
 
 void adc_set_prescaler(enum adc_prescalers prescaler);
 
+/*
+Used to set the MUX bits for analog channel selection.
+Make use of AVR definitions, `in avr/io.h`, to set the channel.
+
+Returns:
+0 if the given channel is out of range. I.e. if channel is 6 and MUX_BITS_NUM is 6 then
+`6 < 6 -1` is false.
+*/
+uint8_t adc_set_channel(uint8_t channel);
+
 void adc_enable_interrupt();
 
 void adc_disable_interrupt();
+
+uint8_t adc_read_left_aligned();
+
+uint16_t adc_read_right_aligned();
 
 #endif // ENV_AVR == 1 
 

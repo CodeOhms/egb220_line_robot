@@ -1,6 +1,6 @@
-#include "sensors.h"
+#include "sensor.h"
 
-void sensors_init()
+void sensor_init()
 {
     // Set-up ADC:
         // Voltage reference:
@@ -17,4 +17,9 @@ void sensors_init()
 
     // Start ADC conversion/reading:
     adc_start();
+}
+
+void sensor_read()
+{
+    
 }
