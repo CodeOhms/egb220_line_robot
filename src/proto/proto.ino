@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
-#define TOLERANCE 130
+#define TOLERANCE 125
 
 
 uint16_t pot1;
@@ -164,33 +164,40 @@ int main(){
 		sen_1();
 
 		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { // If 4 & 5 see line, go straight
-			OCR0A = 100;
-			OCR0B = 100;
+			OCR0A = 120;
+			OCR0B = 120;
 		}		
-		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if 5 sees line and 4 does not veer left
-			OCR0A = 100;
-			OCR0B = 95;
+		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if 5 sees line & 4 does not veer left
+			OCR0A = 120;
+			OCR0B = 110;
 		}
-		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ // if 4 sees line and 5 does not veer right
-			OCR0A = 95;
-			OCR0B = 100;
+		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ // if 4 sees line & 5 does not veer right
+			OCR0A = 110;
+			OCR0B = 120;
 		}
-		
 		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){ // if 3 & 6 see line go straight (intersection)
+			OCR0A = 120;
+			OCR0B = 120;
+		}
+		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){ // if 3 sees line & 6 does not, stronger veer right
+			OCR0A = 80;
+			OCR0B = 110;
+		}
+		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){ // if 6 sees line & 3 does not, stronger veer left
+			OCR0A = 110;
+			OCR0B = 80;
+		}
+		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){ // if 7 sees line & 2 does not, stop left motor, slow right motor (turn right)
 			OCR0A = 100;
-			OCR0B = 100;
-		}
-		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){ // if 6 sees line and 3 does not turn off motor A, slow down motor B (turn left)
-			OCR0A = 0;
-			OCR0B = 90;
-		}
-		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){ // if 3 sees line and 6 does not turn off motor B, slow down motor A (turn right)
-			OCR0A = 90;
 			OCR0B = 0;
 		}
-		else{ // slow down
-			OCR0A = 50;
-			OCR0B = 50;
+		else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){ // if 2 sees line & 7 does not, stop right motor, slow left motor (turn left)
+			OCR0A = 0;
+			OCR0B = 100;
+		}
+		else{ 
+			OCR0A = 0;
+			OCR0B = 0;
 		}
 	}
 }
