@@ -112,43 +112,43 @@ int main(){
 
 		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { // If 4 & 5 see line, go straight
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 100;
+			OCR0B = 120;
 		}		
 		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if 5 sees line and 4 does not veer left
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 95;
+			OCR0B = 116;
 		}
 		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ // if 4 sees line and 5 does not veer right
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 95; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 116; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 100;
+			OCR0B = 120;
 		}
 		
 		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){ // if 3 & 6 see line go straight (intersection)
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 100;
+			OCR0B = 120;
 		}
 		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){ // if 6 sees line and 3 does not turn off motor A, slow down motor B (turn left)
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
 			OCR0A = 0; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 90;
+			OCR0B = 110;
 		}
 		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){ // if 3 sees line and 6 does not turn off motor B, slow down motor A (turn right)
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 90; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 110; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
 			OCR0B = 0;

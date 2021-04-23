@@ -164,28 +164,35 @@ int main(){
 		sen_1();
 
 		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { // If 4 & 5 see line, go straight
-			OCR0A = 100;
-			OCR0B = 100;
+			OCR0A = 160;
+			OCR0B = 160;
 		}		
 		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if 5 sees line and 4 does not veer left
-			OCR0A = 100;
-			OCR0B = 95;
+			OCR0A = 160;
+			OCR0B = 155;
 		}
 		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ // if 4 sees line and 5 does not veer right
-			OCR0A = 95;
-			OCR0B = 100;
+			OCR0A = 155;
+			OCR0B = 160;
 		}
-		
 		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){ // if 3 & 6 see line go straight (intersection)
-			OCR0A = 100;
-			OCR0B = 100;
+			OCR0A = 160;
+			OCR0B = 160;
 		}
-		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){ // if 6 sees line and 3 does not turn off motor A, slow down motor B (turn left)
+		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){ 
+			OCR0A = 120;
+			OCR0B = 160;
+		}
+		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){ 
+			OCR0A = 160;
+			OCR0B = 120;
+		}
+		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){ 
 			OCR0A = 0;
-			OCR0B = 90;
+			OCR0B = 120;
 		}
-		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){ // if 3 sees line and 6 does not turn off motor B, slow down motor A (turn right)
-			OCR0A = 90;
+		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){ 
+			OCR0A = 120;
 			OCR0B = 0;
 		}
 		else{ // slow down
