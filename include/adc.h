@@ -67,13 +67,17 @@ Returns:
 */
 uint8_t adc_set_channel(uint8_t channel);
 
+uint8_t adc_is_left_aligned();
+
 void adc_enable_interrupt();
 
 void adc_disable_interrupt();
 
-uint8_t adc_read_left_aligned();
+// uint8_t adc_read_left_aligned();
 
-uint16_t adc_read_right_aligned();
+// uint16_t adc_read_right_aligned();
+
+uint16_t adc_read_regular();
 
 #endif // ENV_AVR == 1 
 

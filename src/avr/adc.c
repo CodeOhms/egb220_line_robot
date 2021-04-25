@@ -95,13 +95,14 @@ void adc_set_prescaler(enum adc_prescalers prescaler)
 
 uint8_t adc_set_channel(uint8_t channel)
 {
-    if(channel > MUX_BITS_NUM -1)
+    #ifdef MUX5
+    
+    if(channel > MUX5)
     {
         return 0;
     }
     
     uint8_t unchanged = ADMUX & 0b11100000;
-    #if MUX_BITS_NUM > 5
 
     // Set MUX bits 0 to 4:
     ADMUX = unchanged | (channel & 0b00011111);
@@ -117,6 +118,11 @@ uint8_t adc_set_channel(uint8_t channel)
     return 1;
 }
 
+uint8_t adc_is_left_aligned()
+{
+    return ADMUX & ~(1<<ADLAR);
+}
+
 void adc_enable_interrupt()
 {
     ADCSRA |= (1<<ADIE);
@@ -127,16 +133,27 @@ void adc_disable_interrupt()
     ADCSRA &= ~(1<<ADIE);
 }
 
-uint8_t adc_read_left_aligned()
-{
-    return ADCH;
-}
+// uint8_t adc_read_left_aligned()
+// {
+//     return ADCH;
+// }
 
-uint16_t adc_read_right_aligned()
+// uint16_t adc_read_right_aligned()
+// {
+//     uint8_t high_bits = ADCH;
+//     uint8_t low_bits = ADCL;
+//     return (high_bits<<2 | low_bits);
+// }
+
+uint16_t adc_read_regular()
 {
-    uint8_t high_bits = ADCH;
-    uint8_t low_bits = ADCL;
-    return (high_bits<<2 | low_bits);
+    uint16_t result = ADCH;
+    if(!adc_is_left_aligned())
+    {
+        result = (ADCH<<2 | ADCL);
+    }
+
+    return result;
 }
 
 #endif // ENV_AVR == 1 
