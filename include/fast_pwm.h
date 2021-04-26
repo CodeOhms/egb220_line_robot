@@ -11,10 +11,10 @@ enum pwm_prescalers
 {
     no_clock_source,
     no_prescaler,
-    prescaler8,
-    prescaler64,
-    prescaler256,
-    prescaler1024,
+    f_pwm_prescaler8,
+    f_pwm_prescaler64,
+    f_pwm_prescaler256,
+    f_pwm_prescaler1024,
     extern_clock_falling,
     extern_clock_rising
 };

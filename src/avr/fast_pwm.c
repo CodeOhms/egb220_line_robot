@@ -84,25 +84,25 @@ void fast_pwm_select_prescaler(enum pwm_prescalers prescaler)
         TCCR0B |= (1<<CS00);
         break;
     
-    case prescaler8:
+    case f_pwm_prescaler8:
         TCCR0B &= ~(1<<CS02);
         TCCR0B |= (1<<CS01);
         TCCR0B &= ~(1<<CS00);
         break;
     
-    case prescaler64:
+    case f_pwm_prescaler64:
         TCCR0B &= ~(1<<CS02);
         TCCR0B |= (1<<CS01);
         TCCR0B |= (1<<CS00);
         break;
     
-    case prescaler256:
+    case f_pwm_prescaler256:
         TCCR0B |= (1<<CS02);
         TCCR0B &= ~(1<<CS01);
         TCCR0B &= ~(1<<CS00);
         break;
     
-    case prescaler1024:
+    case f_pwm_prescaler1024:
         TCCR0B |= (1<<CS02);
         TCCR0B &= ~(1<<CS01);
         TCCR0B |= (1<<CS00);

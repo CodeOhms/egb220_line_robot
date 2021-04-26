@@ -7,18 +7,22 @@
 #include "fast_pwm.h"
 #include "leds.h"
 #include "motors.h"
+#include "sensors.h"
 
 void initialise(void)
 {
-    // Set up motors and pwm.
-        // Set up pwm.
-    fast_pwm_init(prescaler256, 0);
+    // Start motors and pwm:
+        // Start pwm:
+    fast_pwm_init(f_pwm_prescaler256, 0);
 
-        // Set up motors.
+        // Start motors:
     motor_init();
 
-    // Set up leds.
+    // Start leds:
     led_init();
+
+    // Start sensors (starts ADC too):
+    sensor_init();
 }
 
 #endif //ENV_AVR

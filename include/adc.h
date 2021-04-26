@@ -32,11 +32,11 @@ enum auto_trigger_source
 
 enum adc_prescalers
 {
-    prescaler2,
-    prescaler4,
-    prescaler8,
-    prescaler64,
-    prescaler128
+    adc_prescaler2,
+    adc_prescaler4,
+    adc_prescaler8,
+    adc_prescaler64,
+    adc_prescaler128
 };
 
 void adc_on();
@@ -55,7 +55,7 @@ void adc_set_reference_voltage(enum voltage_reference v_ref);
 
 void adc_set_trigger(uint8_t auto_trig, enum auto_trigger_source auto_trig_source);
 
-void adc_set_prescaler(enum adc_prescalers prescaler);
+void adc_set_adc_prescaler(enum adc_adc_prescalers adc_prescaler);
 
 /*
 Used to set the MUX bits for analog channel selection.

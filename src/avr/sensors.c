@@ -12,7 +12,7 @@ void sensor_init()
         // Trigger, auto trigger enabled and free running mode:
     adc_set_trigger(1, free_running);
         // Prescaler:
-    adc_set_prescaler(prescaler128);
+    adc_set_prescaler(adc_prescaler128);
     
     // Set up reading for the first sensor:
     _current_sensor = 0;

@@ -70,20 +70,20 @@ void adc_set_prescaler(enum adc_prescalers prescaler)
     // TODO: finish implementing adc_set_prescaler
     switch(prescaler)
     {
-        case prescaler2:
+        case adc_prescaler2:
             ADCSRA &= ~(1<<ADPS2 | 1<<ADPS1 | 1<<ADPS0);
             break;
 
-        case prescaler4:
+        case adc_prescaler4:
             break;
 
-        case prescaler8:
+        case adc_prescaler8:
             break;
         
-        case prescaler64:
+        case adc_prescaler64:
             break;
         
-        case prescaler128:
+        case adc_prescaler128:
             ADCSRA |= (1<<ADPS2 | 1<<ADPS1 | 1<<ADPS0);
             break;
         
