@@ -7,14 +7,14 @@
 #define TOLERANCE 125
 
 
-uint16_t pot1;
-uint16_t pot2;
-uint16_t pot3;
-uint16_t pot4;
-uint16_t pot5;
-uint16_t pot6;
-uint16_t pot7;
 uint16_t pot8;
+uint16_t pot7;
+uint16_t pot6;
+uint16_t pot5;
+uint16_t pot4;
+uint16_t pot3;
+uint16_t pot2;
+uint16_t pot1;
 
 void pwm_init(){
 	TCCR0A |= (1<<WGM00);
@@ -78,6 +78,7 @@ void sen_7() {
 		ADMUX &= ~(1<<0);		// clear admux channels
 		ADCSRB &= ~(1<<5);		// clear admux channels
 }
+
 void sen_6() {
 	ADMUX |= (1<<1);	//enable adc10
 	ADCSRB |= (1<<5);	// mux 5 on
@@ -138,7 +139,7 @@ void sen_2() {
 }
 
 void sen_1() { 
-	ADMUX |= (1<<3);				// enable adc4
+	ADMUX |= (1<<2);				// enable adc4
 	ADCSRA |= (1<<6);				// start conversion
 
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
@@ -163,35 +164,35 @@ int main(){
 		sen_2();
 		sen_1();
 
-		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { // If 4 & 5 see line, go straight
+		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { 	// if 4 & 5 see line, go straight
 			OCR0A = 120;
 			OCR0B = 120;
 		}		
-		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if 5 sees line & 4 does not veer left
+		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){	// if 5 sees line & 4 does not veer left
 			OCR0A = 120;
 			OCR0B = 110;
 		}
-		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ // if 4 sees line & 5 does not veer right
+		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){	// if 4 sees line & 5 does not veer right
 			OCR0A = 110;
 			OCR0B = 120;
 		}
-		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){ // if 3 & 6 see line go straight (intersection)
+		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){	// if 3 & 6 see line go straight (intersection)
 			OCR0A = 120;
 			OCR0B = 120;
 		}
-		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){ // if 3 sees line & 6 does not, stronger veer right
+		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){	// if 3 sees line & 6 does not, stronger veer right
 			OCR0A = 80;
 			OCR0B = 110;
 		}
-		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){ // if 6 sees line & 3 does not, stronger veer left
+		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){	// if 6 sees line & 3 does not, stronger veer left
 			OCR0A = 110;
 			OCR0B = 80;
 		}
-		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){ // if 7 sees line & 2 does not, stop left motor, slow right motor (turn right)
+		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){	// if 7 sees line & 2 does not, stop left motor, slow right motor (turn right)
 			OCR0A = 100;
 			OCR0B = 0;
 		}
-		else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){ // if 2 sees line & 7 does not, stop right motor, slow left motor (turn left)
+		else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){	// if 2 sees line & 7 does not, stop right motor, slow left motor (turn left)
 			OCR0A = 0;
 			OCR0B = 100;
 		}
