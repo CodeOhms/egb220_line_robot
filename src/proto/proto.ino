@@ -4,6 +4,9 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
+#define BASE 	100
+#define SLIGHT 	98
+#define MID		90 	
 #define TOLERANCE 125
 
 
@@ -51,7 +54,7 @@ ISR(ADC_vect0)
 
 void adc_init(){
 	ADMUX |= (1<<6)|(1<<5); //5V ref 
-	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
 	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start converion, left adjusted
 }
 
@@ -146,7 +149,7 @@ void sen_1() {
 		pot1 = ADCH;
 		ADCSRA |= (1<<ADIF);		// clear ADIF 
 		ADCSRA &= ~(1<<6);			// stop conversion
-		ADMUX &= ~(1<<3);			// clear admux channels
+		ADMUX &= ~(1<<2);			// clear admux channels
 }
 
 int main(){
@@ -165,37 +168,44 @@ int main(){
 		sen_1();
 
 		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { 	// if 4 & 5 see line, go straight
-			OCR0A = 120;
-			OCR0B = 120;
+			OCR0A = BASE;
+			OCR0B = BASE;
 		}		
-		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){	// if 5 sees line & 4 does not veer left
-			OCR0A = 120;
-			OCR0B = 110;
+		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){	// if 5 sees line & 4 does not, SLIGHT RIGHT
+			OCR0A = SLIGHT;
+			OCR0B = BASE;
 		}
-		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){	// if 4 sees line & 5 does not veer right
-			OCR0A = 110;
-			OCR0B = 120;
+		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){	// if 4 sees line & 5 does not SLIGHT LEFT
+			OCR0A = BASE;
+			OCR0B = SLIGHT;
 		}
 		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){	// if 3 & 6 see line go straight (intersection)
-			OCR0A = 120;
-			OCR0B = 120;
+			OCR0A = BASE;
+			OCR0B = BASE;
 		}
-		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){	// if 3 sees line & 6 does not, stronger veer right
-			OCR0A = 80;
-			OCR0B = 110;
+		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){	// if 3 sees line & 6 does not, MID RIGHT
+			OCR0A = MID;
+			OCR0B = BASE;
 		}
-		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){	// if 6 sees line & 3 does not, stronger veer left
-			OCR0A = 110;
-			OCR0B = 80;
+		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){	// if 6 sees line & 3 does not, MID LEFT
+			OCR0A = BASE;
+			OCR0B = MID;
 		}
-		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){	// if 7 sees line & 2 does not, stop left motor, slow right motor (turn right)
-			OCR0A = 100;
+		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){	// if 7 sees line & 2 does not, HARD LEFT
+			OCR0A = 0;
+			OCR0B = BASE;
+		}
+		else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){	// if 2 sees line & 7 does not, HARD RIGHT
+			OCR0A = BASE;
 			OCR0B = 0;
 		}
-		else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){	// if 2 sees line & 7 does not, stop right motor, slow left motor (turn left)
-			OCR0A = 0;
-			OCR0B = 100;
+		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 1 sees line & 8 does not, HARD LEFT
+			OCR0A = -50;
+			OCR0B = BASE;
 		}
+		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 8 sees line & 1 does not, HARD RIGHT
+			OCR0A = BASE;
+			OCR0B = -50;
 		else{ 
 			OCR0A = 0;
 			OCR0B = 0;

@@ -37,7 +37,7 @@ ISR(ADC_vect0)
 void sen_6() {
 	ADMUX |= (1<<6)|(1<<5)|(1<<1); //enable adc10, 5V ref, left adjusted
 	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start converion
-	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
 	ADCSRB |= (1<<5); // free running mode, mux 5 on
 	ADCSRA |= (1<<6); // start conversion
 
@@ -112,53 +112,53 @@ int main(){
 
 		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { // If 4 & 5 see line, go straight
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 120;
+			OCR0B = 100;
 		}		
 		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){ // if 5 sees line and 4 does not veer left
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 116;
+			OCR0B = 98;
 		}
 		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){ // if 4 sees line and 5 does not veer right
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 116; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 98; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 120;
+			OCR0B = 100;
 		}
 		
 		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){ // if 3 & 6 see line go straight (intersection)
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 120; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 100; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 120;
+			OCR0B = 100;
 		}
 		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){ // if 6 sees line and 3 does not turn off motor A, slow down motor B (turn left)
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
 			OCR0A = 0; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 110;
+			OCR0B = 50;
 		}
 		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){ // if 3 sees line and 6 does not turn off motor B, slow down motor A (turn right)
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 110; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 50; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
 			OCR0B = 0;
 		}
 		else{ // slow down
 			PORTB |= (1<<0); // Set Bit/Pin 0 to 1/Output
-			OCR0A = 50; // Set Bit/Pin 0 to 1/Output
+			OCR0A = 0; // Set Bit/Pin 0 to 1/Output
 
 			PORTE |= (1<<6); // Set Bit/Pin 0 to 1/Output
-			OCR0B = 50;
+			OCR0B = 0;
 		}
 	}
 }
