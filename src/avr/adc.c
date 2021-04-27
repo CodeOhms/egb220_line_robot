@@ -93,14 +93,9 @@ void adc_set_prescaler(enum adc_prescalers prescaler)
     }
 }
 
-uint8_t adc_set_channel(uint8_t channel)
+void adc_set_channel(uint8_t channel)
 {
     #ifdef MUX5
-    
-    if(channel > MUX5)
-    {
-        return 0;
-    }
     
     uint8_t unchanged = ADMUX & 0b11100000;
 
@@ -109,13 +104,17 @@ uint8_t adc_set_channel(uint8_t channel)
     // Set MUX bit 5 in seperate register:
     uint8_t bit5 = (channel & 0b00100000)>>MUX5;
     ADCSRB |= (bit5<<MUX5);
+    /*
+    The bit masking that occurs above is to ensure only the bits needed are selected.
+    If the user code makes a mistake and has bits set that are outside of the 5th bit
+    it will be ignored and this function will still operate as expected.
+    */
 
     #else
     
     ADMUX = unchanged | channel;
 
     #endif
-    return 1;
 }
 
 uint8_t adc_is_left_aligned()

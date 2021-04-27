@@ -55,7 +55,7 @@ void adc_set_reference_voltage(enum voltage_reference v_ref);
 
 void adc_set_trigger(uint8_t auto_trig, enum auto_trigger_source auto_trig_source);
 
-void adc_set_adc_prescaler(enum adc_adc_prescalers adc_prescaler);
+void adc_set_prescaler(enum adc_prescalers adc_prescaler);
 
 /*
 Used to set the MUX bits for analog channel selection.
@@ -65,7 +65,7 @@ Returns:
 0 if the given channel is out of range. I.e. if channel is 6 and MUX_BITS_NUM is 6 then
 `6 < 6 -1` is false.
 */
-uint8_t adc_set_channel(uint8_t channel);
+void adc_set_channel(uint8_t channel);
 
 uint8_t adc_is_left_aligned();
 

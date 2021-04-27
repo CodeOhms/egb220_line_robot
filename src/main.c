@@ -2,6 +2,7 @@
 #include "peripherals.h"
 #include "leds.h"
 #include "motors.h"
+#include "sensors.h"
 
 #define TOLERANCE 125
 
