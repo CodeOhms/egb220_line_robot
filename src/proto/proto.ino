@@ -200,12 +200,12 @@ int main(){
 			OCR0B = 0;
 		}
 		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 1 sees line & 8 does not, HARD LEFT
-			OCR0A = -50;
-			OCR0B = BASE;
+			OCR0A = 0;
+			OCR0B = BASE+10;
 		}
 		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 8 sees line & 1 does not, HARD RIGHT
-			OCR0A = BASE;
-			OCR0B = -50;
+			OCR0A = BASE+10;
+			OCR0B = 0;
 		else{ 
 			OCR0A = 0;
 			OCR0B = 0;
