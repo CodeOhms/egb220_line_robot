@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #define BASE 	100	
-#define SLIGHT 	97
+#define SLIGHT 	96
 #define MID		90 	
 #define TOLERANCE 125
 
@@ -169,12 +169,12 @@ int main(){
 			OCR0B = BASE;
 		}
 		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){	// if 3 sees line & 6 does not, MID RIGHT
-			OCR0A = BASE;
+			OCR0A = BASE+5;
 			OCR0B = 0;
 		}
 		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){	// if 6 sees line & 3 does not, MID LEFT
 			OCR0A = 0;
-			OCR0B = BASE;
+			OCR0B = BASE+5;
 		}
 //		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){	// if 7 sees line & 2 does not, HARD LEFT
 //			OCR0A = 0;
