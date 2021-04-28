@@ -56,3 +56,7 @@ dkms.conf
 
 # VSCode
 .vscode
+.DS_Store
+src/.DS_Store
+.DS_Store
+src/.DS_Store
