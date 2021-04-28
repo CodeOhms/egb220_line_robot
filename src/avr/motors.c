@@ -42,12 +42,12 @@ void motor_move(float speed, enum motor_direction direction, uint8_t motor_selec
 
     switch(direction)
     {
-        case forward:
+        case reverse:
             // Set phase pin low.
             *(_motors.port_regs[motor_selected]) &= ~(1<<_motors.pins_offset[motor_selected][PHASE]);
             break;
         
-        case reverse:
+        case forward:
             // Set phase pin high.
             *(_motors.port_regs[motor_selected]) |= (1<<_motors.pins_offset[motor_selected][PHASE]);
             break;

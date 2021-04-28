@@ -147,10 +147,10 @@ void adc_disable_interrupt()
 uint16_t adc_read_regular()
 {
     uint16_t result = ADCH;
-    if(!adc_is_left_aligned())
-    {
-        result = (ADCH<<2 | ADCL);
-    }
+    // if(!adc_is_left_aligned())
+    // {
+    //     result = (ADCH<<2 | ADCL);
+    // }
 
     return result;
 }

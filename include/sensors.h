@@ -17,7 +17,7 @@ Call this function to read the next sensor as specified in the `` array.
 Returns:
 The result of the sensor reading.
 */
-uint16_t sensor_read();
+uint16_t sensor_read(uint8_t current_sensor);
 
 #endif // ENV_AVR == 1 
 
