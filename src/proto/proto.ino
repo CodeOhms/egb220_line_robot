@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #define BASE 	100
-#define SLIGHT 	98
+#define SLIGHT 	95
 #define MID		90 	
 #define TOLERANCE 125
 
@@ -171,11 +171,11 @@ int main(){
 			OCR0A = BASE;
 			OCR0B = BASE;
 		}		
-		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){	// if 5 sees line & 4 does not, SLIGHT RIGHT
+		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){	// if 5 sees the line and 4 does not SLIGHT LEFT
 			OCR0A = SLIGHT;
 			OCR0B = BASE;
 		}
-		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){	// if 4 sees line & 5 does not SLIGHT LEFT
+		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){	// if 4 sees line & 5 does not SLIGHT RIGHT
 			OCR0A = BASE;
 			OCR0B = SLIGHT;
 		}
@@ -184,28 +184,29 @@ int main(){
 			OCR0B = BASE;
 		}
 		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){	// if 3 sees line & 6 does not, MID RIGHT
-			OCR0A = MID;
-			OCR0B = BASE;
+			OCR0A = BASE;
+			OCR0B = 0;
 		}
 		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){	// if 6 sees line & 3 does not, MID LEFT
-			OCR0A = BASE;
-			OCR0B = MID;
-		}
-		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){	// if 7 sees line & 2 does not, HARD LEFT
 			OCR0A = 0;
 			OCR0B = BASE;
 		}
-		else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){	// if 2 sees line & 7 does not, HARD RIGHT
-			OCR0A = BASE;
-			OCR0B = 0;
-		}
-		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 1 sees line & 8 does not, HARD LEFT
-			OCR0A = 0;
-			OCR0B = BASE+10;
-		}
-		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 8 sees line & 1 does not, HARD RIGHT
-			OCR0A = BASE+10;
-			OCR0B = 0;
+//		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){	// if 7 sees line & 2 does not, HARD LEFT
+//			OCR0A = 0;
+//			OCR0B = BASE;
+//		}
+//		else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){	// if 2 sees line & 7 does not, HARD RIGHT
+//			OCR0A = BASE;
+//			OCR0B = 0;
+//		}
+//		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 1 sees line & 8 does not, HARD LEFT
+//			OCR0A = 0;
+//			OCR0B = BASE+10;
+//		}
+//		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 8 sees line & 1 does not, HARD RIGHT
+//			OCR0A = BASE+10;
+//			OCR0B = 0;
+//		}
 		else{ 
 			OCR0A = 0;
 			OCR0B = 0;
