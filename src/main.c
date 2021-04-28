@@ -7,8 +7,8 @@
 #define BASE 	100
 #define SLIGHT 	95
 #define MID		90 	
-#define BASE_PERCENT BASE/2.55
-#define SLIGHT_PERCENT SLIGHT/2.55
+#define BASE_PERCENT ((float) BASE/2.55)
+#define SLIGHT_PERCENT ((float) SLIGHT/2.55)
 #define TOLERANCE 125
 
 #ifdef ENV_AVR

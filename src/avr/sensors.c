@@ -35,14 +35,14 @@ void sensor_close()
     adc_off();
 }
 
-uint16_t sensor_read(uint8_t next_sensor)
+uint16_t sensor_read(uint8_t current_sensor)
 {   
     // Read the sensor:
     uint16_t result = adc_read_regular();
 
     // Set up reading for the next sensor:
-    next_sensor = (next_sensor +1) % SENSORS_NUM;
-    adc_set_channel(_channels[next_sensor]);
+    current_sensor = (current_sensor +1) % SENSORS_NUM;
+    adc_set_channel(_channels[current_sensor]);
 
     return result;
 }

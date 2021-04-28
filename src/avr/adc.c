@@ -102,8 +102,7 @@ void adc_set_channel(uint8_t channel)
     // Set MUX bits 0 to 4:
     ADMUX = unchanged | (channel & 0b00011111);
     // Set MUX bit 5 in seperate register:
-    uint8_t bit5 = (channel & 0b00100000)>>MUX5;
-    ADCSRB |= (bit5<<MUX5);
+    ADCSRB |= (channel & 1<<MUX5);
     /*
     The bit masking that occurs above is to ensure only the bits needed are selected.
     If the user code makes a mistake and has bits set that are outside of the 5th bit
