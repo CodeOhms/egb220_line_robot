@@ -5,8 +5,9 @@
 #include <stdlib.h>
 
 #define TOLERANCE 80
-#define Kp 15
-#define Kd 0.15
+#define BASE 50 
+#define Kp 20.5
+#define Kd 0.17
 
 uint16_t pot8;
 uint16_t pot7;
@@ -170,11 +171,16 @@ int current_position(){
 	if(pot6 < TOLERANCE && pot1 >= TOLERANCE){position = 2;}
 	if(pot7 < TOLERANCE && pot1 >= TOLERANCE){position = 3;}
 	if(pot8 < TOLERANCE && pot1 >= TOLERANCE){position = 4;}
-	else{
-		setMotorSpeeds(0, 0);
-	}
+	else if(pot8 >= TOLERANCE && pot7 >= TOLERANCE
+		&& pot6 >= TOLERANCE && pot5 >= TOLERANCE
+		&& pot3 >= TOLERANCE && pot3 >= TOLERANCE
+		&& pot2 >= TOLERANCE && pot1)
+		{
+		OCR0A = 0;
+		OCR0B = 0;
+		}
 
-	setMotorSpeeds( 35 - position, 35 + position);
+	setMotorSpeeds( BASE - position, BASE + position);
 
 	return position;
 }
@@ -184,7 +190,7 @@ void PID(double kp, double kd, int *last_error, int base){
 	int error = 0 - current_pos;
 	int derivative = error - *last_error;
 	int control = (kp * error) + (kd * derivative);
-	setMotorSpeeds(base + control, base - control);
+	setMotorSpeeds(BASE + control, BASE - control);
 	*last_error = error;
 }
 
@@ -203,7 +209,7 @@ int main(){
 		sen_2(); 
 		sen_1(); 
 		current_position();
-		PID(Kp, Kd, 0, 35);
+		PID(Kp, Kd, 0, BASE);
 	}
 }
 
