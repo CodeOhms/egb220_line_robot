@@ -4,11 +4,10 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
-#define BASE 	100	
-#define SLIGHT 	96
-#define MID		90 	
-#define TOLERANCE 125
-
+#define TOLERANCE 75
+#define BASE 25 
+#define Kp 8.33
+#define Kd 0.1
 
 uint16_t pot8;
 uint16_t pot7;
@@ -18,6 +17,8 @@ uint16_t pot4;
 uint16_t pot3;
 uint16_t pot2;
 uint16_t pot1;
+
+int error;
 
 void pwm_init(){
 	TCCR0A |= (1<<WGM00);
@@ -54,12 +55,12 @@ ISR(ADC_vect0)
 
 void adc_init(){
 	ADMUX |= (1<<6)|(1<<5); //5V ref 
-	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|(1<<0);
-	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start converion, left adjusted
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
+	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 64, start converion, left adjusted
 }
 
 void sen_8() {
-	ADCSRB |= (1<<5);	// enable adc 8
+	ADCSRB |= (1<<5);	// enable adc 8 -> 100000
 
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
 		pot8 = ADCH;
@@ -68,7 +69,7 @@ void sen_8() {
 }
 
 void sen_7() {
-	ADMUX |= (1<<0);	// enable adc 9
+	ADMUX |= (1<<0);	// enable adc 9 -> 100001
 	ADCSRB |= (1<<5);
 
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
@@ -79,7 +80,7 @@ void sen_7() {
 }
 
 void sen_6() {
-	ADMUX |= (1<<1);	//enable adc10
+	ADMUX |= (1<<1);	//enable adc10 -> 100010
 	ADCSRB |= (1<<5);	// mux 5 on
 
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
@@ -90,7 +91,7 @@ void sen_6() {
 }
 
 void sen_5() {
-	ADMUX |= (1<<1)|(1<<0);	//enable adc11
+	ADMUX |= (1<<1)|(1<<0);	//enable adc11 -> 100011
 	ADCSRB |= (1<<5);		// mux 5 on
 
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
@@ -101,7 +102,7 @@ void sen_5() {
 }
 
 void sen_4() { 
-	ADMUX |= (1<<2)|(1<<1)|(1<<0);			// enable adc7
+	ADMUX |= (1<<2)|(1<<1)|(1<<0);			// enable adc7 -> 000111
 
 	while(~ADCSRA&(1<<ADIF)){}				// Result now available.
 		pot4 = ADCH;
@@ -110,7 +111,7 @@ void sen_4() {
 }
 
 void sen_3() { 
-	ADMUX |= (1<<2)|(1<<1);			// enable adc6
+	ADMUX |= (1<<2)|(1<<1);			// enable adc6 -> 000110
 
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot3 = ADCH;
@@ -119,7 +120,7 @@ void sen_3() {
 }
 
 void sen_2() { 
-	ADMUX |= (1<<2)|(1<<0);			// enable adc5
+	ADMUX |= (1<<2)|(1<<0);			// enable adc5 -> 000101
 
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot2 = ADCH;
@@ -128,12 +129,59 @@ void sen_2() {
 }
 
 void sen_1() { 
-	ADMUX |= (1<<2);				// enable adc4
+	ADMUX |= (1<<2);				// enable adc4 -> 000100
 
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot1 = ADCH;
 		ADCSRA |= (1<<ADIF);		// clear ADIF 
 		ADMUX &= ~(1<<2);			// clear admux channels
+}
+
+void setMotorSpeeds(double motorA, double motorB) {
+	OCR0A = 255 * motorA/100; 
+	OCR0B = 255 * motorB/100;
+}
+
+int current_position(){
+	int position = 0;
+	if(pot1 < TOLERANCE && pot8 < TOLERANCE){position = 0;} // Straight line case
+	if(pot4 < TOLERANCE && pot5 < TOLERANCE){position = 0;} // Straight line case
+
+	//if(pot1 < TOLERANCE && pot8 >= TOLERANCE){position =-4;}
+	else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){position =-1;}
+	else if(pot5 < TOLERANCE && pot4 >= TOLERANCE){position = 1;}
+	else if(pot3 < TOLERANCE && pot8 >= TOLERANCE){position =-2;}
+	else if(pot6 < TOLERANCE && pot1 >= TOLERANCE){position = 2;}
+	else if(pot2 < TOLERANCE && pot8 >= TOLERANCE){position =-3;}
+	else if(pot7 < TOLERANCE && pot1 >= TOLERANCE){position = 3;}
+	//if(pot8 < TOLERANCE && pot1 >= TOLERANCE){position = 4;}
+
+	else if(pot8 > TOLERANCE 
+		&&  pot7 > TOLERANCE
+		&&  pot6 > TOLERANCE 
+		&&  pot5 > TOLERANCE
+		&&  pot4 > TOLERANCE 
+		&&  pot3 > TOLERANCE
+		&&  pot2 > TOLERANCE 
+		&&  pot1 > TOLERANCE)
+		{
+		OCR0A = 0;
+		OCR0B = 0;
+		delay(1000)
+		}
+
+	setMotorSpeeds( BASE - position, BASE + position);
+
+	return position;
+}
+
+void PID(double kp, double kd, int *last_error, int base){
+	int current_pos = current_position();
+	int error = 0 - current_pos;
+	int derivative = error - *last_error;
+	int control = (kp * error) + (kd * derivative);
+	setMotorSpeeds(BASE + control, BASE - control);
+	*last_error = error;
 }
 
 int main(){
@@ -142,60 +190,18 @@ int main(){
 	pwm_init();
 
 	while(1) {
-		ADCSRA |= (1<<6);				// start conversion
-		sen_8();
-		sen_7();
-		sen_6();
-		sen_5();
-		sen_4();
-		sen_3();
-		sen_2();
-		sen_1();
-
-		if (pot4 < TOLERANCE && pot5 < TOLERANCE) { 	// if 4 & 5 see line, go straight
-			OCR0A = BASE;
-			OCR0B = BASE;
-		}		
-		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){	// if 5 sees the line and 4 does not SLIGHT LEFT
-			OCR0A = SLIGHT;
-			OCR0B = BASE;
-		}
-		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){	// if 4 sees line & 5 does not SLIGHT RIGHT
-			OCR0A = BASE;
-			OCR0B = SLIGHT;
-		}
-		else if(pot6 < TOLERANCE && pot3 < TOLERANCE){	// if 3 & 6 see line go straight (intersection)
-			OCR0A = BASE;
-			OCR0B = BASE;
-		}
-		else if(pot3 < TOLERANCE && pot6 >= TOLERANCE){	// if 3 sees line & 6 does not, MID RIGHT
-			OCR0A = BASE+5;
-			OCR0B = 0;
-		}
-		else if(pot6 < TOLERANCE && pot3 >= TOLERANCE){	// if 6 sees line & 3 does not, MID LEFT
-			OCR0A = 0;
-			OCR0B = BASE+5;
-		}
-//		else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){	// if 7 sees line & 2 does not, HARD LEFT
-//			OCR0A = 0;
-//			OCR0B = BASE;
-//		}
-//		else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){	// if 2 sees line & 7 does not, HARD RIGHT
-//			OCR0A = BASE;
-//			OCR0B = 0;
-//		}
-//		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 1 sees line & 8 does not, HARD LEFT
-//			OCR0A = 0;
-//			OCR0B = BASE+10;
-//		}
-//		else if(pot1 < TOLERANCE && pot8 >= TOLERANCE){	// if 8 sees line & 1 does not, HARD RIGHT
-//			OCR0A = BASE+10;
-//			OCR0B = 0;
-//		}
-		else{ 
-			OCR0A = 0;
-			OCR0B = 0;
-		}
-		ADCSRA &= ~(1<<6);			// stop conversion
+	ADCSRA |= (1<<6);	// start conversion
+		sen_8(); 
+		sen_7(); 
+		sen_6(); 
+		sen_5(); 
+		sen_4(); 
+		sen_3(); 
+		sen_2(); 
+		sen_1(); 
+		ADCSRA &= ~(1<<6);		// stop conversion
+		current_position();
+		PID(Kp, Kd, 0, BASE);
 	}
 }
+
