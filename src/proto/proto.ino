@@ -4,19 +4,20 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
-#define TOLERANCE 75
+#define TOLERANCE 65
 #define BASE 25 
-#define Kp 8.33
+#define Kp 8.2
+#define Ki 0.01
 #define Kd 0.1
 
-uint16_t pot8;
+//uint16_t pot8;
 uint16_t pot7;
 uint16_t pot6;
 uint16_t pot5;
 uint16_t pot4;
 uint16_t pot3;
 uint16_t pot2;
-uint16_t pot1;
+//uint16_t pot1;
 
 int error;
 
@@ -61,7 +62,6 @@ void adc_init(){
 
 void sen_8() {
 	ADCSRB |= (1<<5);	// enable adc 8 -> 100000
-
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
 		pot8 = ADCH;
 		ADCSRA |= (1<<ADIF);	//clear adif
@@ -71,7 +71,6 @@ void sen_8() {
 void sen_7() {
 	ADMUX |= (1<<0);	// enable adc 9 -> 100001
 	ADCSRB |= (1<<5);
-
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
 		pot7 = ADCH;
 		ADCSRA |= (1<<ADIF);	//clear adif
@@ -82,7 +81,6 @@ void sen_7() {
 void sen_6() {
 	ADMUX |= (1<<1);	//enable adc10 -> 100010
 	ADCSRB |= (1<<5);	// mux 5 on
-
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
 		pot6 = ADCH;
 		ADCSRA |= (1<<ADIF);	//clear adif
@@ -93,7 +91,6 @@ void sen_6() {
 void sen_5() {
 	ADMUX |= (1<<1)|(1<<0);	//enable adc11 -> 100011
 	ADCSRB |= (1<<5);		// mux 5 on
-
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot5 = ADCH;
 		ADCSRA |= (1<<ADIF);		//clear adif
@@ -103,7 +100,6 @@ void sen_5() {
 
 void sen_4() { 
 	ADMUX |= (1<<2)|(1<<1)|(1<<0);			// enable adc7 -> 000111
-
 	while(~ADCSRA&(1<<ADIF)){}				// Result now available.
 		pot4 = ADCH;
 		ADCSRA |= (1<<ADIF);				// clear ADIF 
@@ -112,7 +108,6 @@ void sen_4() {
 
 void sen_3() { 
 	ADMUX |= (1<<2)|(1<<1);			// enable adc6 -> 000110
-
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot3 = ADCH;
 		ADCSRA |= (1<<ADIF);		// clear ADIF 
@@ -121,7 +116,6 @@ void sen_3() {
 
 void sen_2() { 
 	ADMUX |= (1<<2)|(1<<0);			// enable adc5 -> 000101
-
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot2 = ADCH;
 		ADCSRA |= (1<<ADIF);		// clear ADIF 
@@ -130,7 +124,6 @@ void sen_2() {
 
 void sen_1() { 
 	ADMUX |= (1<<2);				// enable adc4 -> 000100
-
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot1 = ADCH;
 		ADCSRA |= (1<<ADIF);		// clear ADIF 
@@ -150,36 +143,36 @@ int current_position(){
 	//if(pot1 < TOLERANCE && pot8 >= TOLERANCE){position =-4;}
 	else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){position =-1;}
 	else if(pot5 < TOLERANCE && pot4 >= TOLERANCE){position = 1;}
-	else if(pot3 < TOLERANCE && pot8 >= TOLERANCE){position =-2;}
-	else if(pot6 < TOLERANCE && pot1 >= TOLERANCE){position = 2;}
-	else if(pot2 < TOLERANCE && pot8 >= TOLERANCE){position =-3;}
-	else if(pot7 < TOLERANCE && pot1 >= TOLERANCE){position = 3;}
+	else if(pot3 < TOLERANCE && pot7 >= TOLERANCE){position =-2;}
+	else if(pot6 < TOLERANCE && pot2 >= TOLERANCE){position = 2;}
+	else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){position =-3;}
+	else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){position = 3;}
 	//if(pot8 < TOLERANCE && pot1 >= TOLERANCE){position = 4;}
 
-	else if(pot8 > TOLERANCE 
-		&&  pot7 > TOLERANCE
-		&&  pot6 > TOLERANCE 
-		&&  pot5 > TOLERANCE
-		&&  pot4 > TOLERANCE 
-		&&  pot3 > TOLERANCE
-		&&  pot2 > TOLERANCE 
-		&&  pot1 > TOLERANCE)
-		{
+	else if(
+		pot8 > TOLERANCE 
+		&& pot7 > TOLERANCE
+		&& pot6 > TOLERANCE 
+		&& pot5 > TOLERANCE
+		&& pot4 > TOLERANCE 
+		&& pot3 > TOLERANCE
+		&& pot2 > TOLERANCE 
+		&& pot1 > TOLERANCE
+		){
 		OCR0A = 0;
 		OCR0B = 0;
 		delay(1000)
 		}
-
-	setMotorSpeeds( BASE - position, BASE + position);
-
+	setMotorSpeeds(BASE - position , BASE + position);
 	return position;
 }
 
-void PID(double kp, double kd, int *last_error, int base){
+void PID(double kp,double ki, double kd, int *last_error, int base){
 	int current_pos = current_position();
 	int error = 0 - current_pos;
+	int integral = i + error;
 	int derivative = error - *last_error;
-	int control = (kp * error) + (kd * derivative);
+	int control = (kp * error)+ (ki * integral) + (kd * derivative);
 	setMotorSpeeds(BASE + control, BASE - control);
 	*last_error = error;
 }
@@ -191,17 +184,15 @@ int main(){
 
 	while(1) {
 	ADCSRA |= (1<<6);	// start conversion
-		sen_8(); 
+		//sen_8(); 
 		sen_7(); 
 		sen_6(); 
 		sen_5(); 
 		sen_4(); 
 		sen_3(); 
 		sen_2(); 
-		sen_1(); 
+		//sen_1(); 
 		ADCSRA &= ~(1<<6);		// stop conversion
 		current_position();
-		PID(Kp, Kd, 0, BASE);
+		PID(Kp, Ki, Kd, 0, BASE);
 	}
-}
-
