@@ -5,10 +5,6 @@
 #include <stdlib.h>
 
 #define TOLERANCE 80
-#define BASE 50 
-#define Kp 20.5
-#define Kd 0.17
-#define BASE 35
 
 uint16_t pot8;
 uint16_t pot7;
@@ -18,8 +14,6 @@ uint16_t pot4;
 uint16_t pot3;
 uint16_t pot2;
 uint16_t pot1;
-
-int error;
 
 void pwm_init(){
 	TCCR0A |= (1<<WGM00);
@@ -43,7 +37,7 @@ void pwm_init(){
 	DDRB |= (1<<7);
 	//Motor 1
 	DDRE |= (1<<6);
-	DDRD |= (1<<0);
+	DDRD |= (<<0);
 
 	PORTB |= (1<<0); 
 	PORTE |= (1<<6);
@@ -56,102 +50,78 @@ ISR(ADC_vect0)
 
 void adc_init(){
 	ADMUX |= (1<<6)|(1<<5); //5V ref 
-	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1)|1;
-	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start converion, left adjusted
+	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
+	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 64, start converion, left adjusted
 }
 
 void sen_8() {
 	ADCSRB |= (1<<5);	// enable adc 8 -> 100000
-	ADCSRA |= (1<<6);	// start conversion
-
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
 		pot8 = ADCH;
 		ADCSRA |= (1<<ADIF);	//clear adif
 		ADCSRB &= ~(1<<5);		// clear admux channels
-		ADCSRA &= ~(1<<6);		// stop conversion
 }
 
 void sen_7() {
 	ADMUX |= (1<<0);	// enable adc 9 -> 100001
 	ADCSRB |= (1<<5);
-	ADCSRA |= (1<<6);	// start conversion
-
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
 		pot7 = ADCH;
 		ADCSRA |= (1<<ADIF);	//clear adif
 		ADMUX &= ~(1<<0);		// clear admux channels
 		ADCSRB &= ~(1<<5);		// clear admux channels
-		ADCSRA &= ~(1<<6);		// stop conversion
 }
 
 void sen_6() {
 	ADMUX |= (1<<1);	//enable adc10 -> 100010
 	ADCSRB |= (1<<5);	// mux 5 on
-	ADCSRA |= (1<<6);	// start conversion
-
 	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
 		pot6 = ADCH;
 		ADCSRA |= (1<<ADIF);	//clear adif
 		ADMUX &= ~(1<<1);		// clear admux channels
 		ADCSRB &= ~(1<<5);		// clear admux channels
-		ADCSRA &= ~(1<<6);		// stop conversion
 }
 
 void sen_5() {
 	ADMUX |= (1<<1)|(1<<0);	//enable adc11 -> 100011
 	ADCSRB |= (1<<5);		// mux 5 on
-	ADCSRA |= (1<<6);	// start conversion
-
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot5 = ADCH;
 		ADCSRA |= (1<<ADIF);		//clear adif
 		ADMUX &= ~((1<<1)|(1<<0));	// clear admux channels
 		ADCSRB &= ~(1<<5);			// clear admux channels
-		ADCSRA &= ~(1<<6);		// stop conversion
 }
 
 void sen_4() { 
 	ADMUX |= (1<<2)|(1<<1)|(1<<0);			// enable adc7 -> 000111
-	ADCSRA |= (1<<6);	// start conversion
-
 	while(~ADCSRA&(1<<ADIF)){}				// Result now available.
 		pot4 = ADCH;
 		ADCSRA |= (1<<ADIF);				// clear ADIF 
 		ADMUX &= ~((1<<2)|(1<<1)|(1<<0));	// clear admux channels
-		ADCSRA &= ~(1<<6);		// stop conversion
 }
 
 void sen_3() { 
 	ADMUX |= (1<<2)|(1<<1);			// enable adc6 -> 000110
-	ADCSRA |= (1<<6);	// start conversion
-
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot3 = ADCH;
 		ADCSRA |= (1<<ADIF);		// clear ADIF 
 		ADMUX &= ~((1<<2)|(1<<1));	// clear admux channels
-		ADCSRA &= ~(1<<6);		// stop conversion
 }
 
 void sen_2() { 
 	ADMUX |= (1<<2)|(1<<0);			// enable adc5 -> 000101
-	ADCSRA |= (1<<6);	// start conversion
-
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot2 = ADCH;
 		ADCSRA |= (1<<ADIF);		// clear ADIF 
 		ADMUX &= ~((1<<2)|(1<<0));	// clear admux channels
-		ADCSRA &= ~(1<<6);		// stop conversion
 }
 
 void sen_1() { 
 	ADMUX |= (1<<2);				// enable adc4 -> 000100
-	ADCSRA |= (1<<6);	// start conversion
-
 	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
 		pot1 = ADCH;
 		ADCSRA |= (1<<ADIF);		// clear ADIF 
 		ADMUX &= ~(1<<2);			// clear admux channels
-		ADCSRA &= ~(1<<6);		// stop conversion
 }
 
 void setMotorSpeeds(double motorA, double motorB) {
@@ -159,48 +129,26 @@ void setMotorSpeeds(double motorA, double motorB) {
 	OCR0B = 255 * motorB/100;
 }
 
-int current_position(){
-	int position = 0;
-	if(pot1 < TOLERANCE && pot8 < TOLERANCE){position = 0;} // Straight line case
-	if(pot4 < TOLERANCE && pot5 < TOLERANCE){position = 0;}// Straight line case
-
-	if(pot1 < TOLERANCE && pot8 >= TOLERANCE){position =-4;}
-	if(pot2 < TOLERANCE && pot8 >= TOLERANCE){position =-3;}
-	if(pot3 < TOLERANCE && pot8 >= TOLERANCE){position =-2;}
-	if(pot4 < TOLERANCE && pot8 >= TOLERANCE){position =-1;}
-	if(pot5 < TOLERANCE && pot1 >= TOLERANCE){position = 1;}
-	if(pot6 < TOLERANCE && pot1 >= TOLERANCE){position = 2;}
-	if(pot7 < TOLERANCE && pot1 >= TOLERANCE){position = 3;}
-	if(pot8 < TOLERANCE && pot1 >= TOLERANCE){position = 4;}
-	else if(pot8 >= TOLERANCE && pot7 >= TOLERANCE
-		&& pot6 >= TOLERANCE && pot5 >= TOLERANCE
-		&& pot3 >= TOLERANCE && pot3 >= TOLERANCE
-		&& pot2 >= TOLERANCE && pot1)
-		{
-		OCR0A = 0;
-		OCR0B = 0;
-		}
-
-	setMotorSpeeds( BASE - position, BASE + position);
-
-	return position;
-}
-
-void PID(double kp, double kd, int *last_error, int base){
-	int current_pos = current_position();
-	int error = 0 - current_pos;
-	int derivative = error - *last_error;
-	int control = (kp * error) + (kd * derivative);
-	setMotorSpeeds(BASE + control, BASE - control);
-	*last_error = error;
+void motor(){
+	if(	pot1 < TOLERANCE || pot2 < TOLERANCE ||
+		pot3 < TOLERANCE || pot4 < TOLERANCE
+	)
+	{setMotorSpeeds(0, 100);}
+	else if(
+		pot5 < TOLERANCE || pot6 < TOLERANCE ||
+		pot7 < TOLERANCE || pot8 < TOLERANCE
+	)
+	{setMotorSpeeds(100, 0);}
+	else{setMotorSpeeds(0, 0);}
 }
 
 int main(){
 
 	adc_init();
 	pwm_init();
-
 	while(1) {
+		ADCSRA |= (1<<6);	// start conversion
+
 		sen_8(); 
 		sen_7(); 
 		sen_6(); 
@@ -209,8 +157,8 @@ int main(){
 		sen_3(); 
 		sen_2(); 
 		sen_1(); 
+
+		ADCSRA &= ~(1<<6);		// stop conversion
 		current_position();
-		PID(Kp, Kd, 0, BASE);
 	}
 }
-

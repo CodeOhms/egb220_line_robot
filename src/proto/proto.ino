@@ -4,11 +4,7 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
-#define TOLERANCE 65
-#define BASE 25 
-#define Kp 8.2
-#define Ki 0.01
-#define Kd 0.1
+#define TOLERANCE 80
 
 //uint16_t pot8;
 uint16_t pot7;
@@ -19,7 +15,12 @@ uint16_t pot3;
 uint16_t pot2;
 //uint16_t pot1;
 
-int error;
+int error = 0;
+int position = 0;
+int Base = 75;
+int *last_error = 0;
+double Kp = 14;
+double Kd = 0.1;
 
 void pwm_init(){
 	TCCR0A |= (1<<WGM00);
@@ -60,13 +61,13 @@ void adc_init(){
 	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 64, start converion, left adjusted
 }
 
-void sen_8() {
-	ADCSRB |= (1<<5);	// enable adc 8 -> 100000
-	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
-		pot8 = ADCH;
-		ADCSRA |= (1<<ADIF);	//clear adif
-		ADCSRB &= ~(1<<5);		// clear admux channels
-}
+//void sen_8() {
+//	ADCSRB |= (1<<5);	// enable adc 8 -> 100000
+//	while(~ADCSRA&(1<<ADIF)){}	// Result now available.
+//		pot8 = ADCH;
+//		ADCSRA |= (1<<ADIF);	//clear adif
+//		ADCSRB &= ~(1<<5);		// clear admux channels
+//}
 
 void sen_7() {
 	ADMUX |= (1<<0);	// enable adc 9 -> 100001
@@ -122,13 +123,13 @@ void sen_2() {
 		ADMUX &= ~((1<<2)|(1<<0));	// clear admux channels
 }
 
-void sen_1() { 
-	ADMUX |= (1<<2);				// enable adc4 -> 000100
-	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
-		pot1 = ADCH;
-		ADCSRA |= (1<<ADIF);		// clear ADIF 
-		ADMUX &= ~(1<<2);			// clear admux channels
-}
+//void sen_1() { 
+//	ADMUX |= (1<<2);				// enable adc4 -> 000100
+//	while(~ADCSRA&(1<<ADIF)){}		// Result now available.
+//		pot1 = ADCH;
+//		ADCSRA |= (1<<ADIF);		// clear ADIF 
+//		ADMUX &= ~(1<<2);			// clear admux channels
+//}
 
 void setMotorSpeeds(double motorA, double motorB) {
 	OCR0A = 255 * motorA/100; 
@@ -136,44 +137,57 @@ void setMotorSpeeds(double motorA, double motorB) {
 }
 
 int current_position(){
-	int position = 0;
-	if(pot1 < TOLERANCE && pot8 < TOLERANCE){position = 0;} // Straight line case
+
 	if(pot4 < TOLERANCE && pot5 < TOLERANCE){position = 0;} // Straight line case
+	if(
+	pot2 < TOLERANCE && pot3 < TOLERANCE &&
+	pot4 < TOLERANCE && pot5 < TOLERANCE &&
+	pot6 < TOLERANCE && pot7 < TOLERANCE
+	){position = 0;} // Straight line case
 
-	//if(pot1 < TOLERANCE && pot8 >= TOLERANCE){position =-4;}
-	else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){position =-1;}
-	else if(pot5 < TOLERANCE && pot4 >= TOLERANCE){position = 1;}
-	else if(pot3 < TOLERANCE && pot7 >= TOLERANCE){position =-2;}
-	else if(pot6 < TOLERANCE && pot2 >= TOLERANCE){position = 2;}
-	else if(pot2 < TOLERANCE && pot7 >= TOLERANCE){position =-3;}
-	else if(pot7 < TOLERANCE && pot2 >= TOLERANCE){position = 3;}
-	//if(pot8 < TOLERANCE && pot1 >= TOLERANCE){position = 4;}
+	// if 2 sees line error =-5
+	if(pot2 < TOLERANCE && pot3 >= TOLERANCE && pot4 >= TOLERANCE && pot5 >= TOLERANCE && pot6 >= TOLERANCE && pot7 >= TOLERANCE){position =-5;}
+	// if 3 & 2 see line error =-4
+	if(pot2 < TOLERANCE && pot3 <  TOLERANCE && pot4 >= TOLERANCE && pot5 >= TOLERANCE && pot6 >= TOLERANCE && pot7 >= TOLERANCE){position =-4;}
+	// if 3 sees line error =-3
+	if(pot3 < TOLERANCE && pot2 >= TOLERANCE && pot4 >= TOLERANCE && pot5 >= TOLERANCE && pot6 >= TOLERANCE && pot7 >= TOLERANCE){position =-3;}
+	// if 3 & 4 see line error =-2
+	if(pot3 < TOLERANCE && pot4 <  TOLERANCE && pot2 >= TOLERANCE && pot5 >= TOLERANCE && pot6 >= TOLERANCE && pot7 >= TOLERANCE){position =-2;}
+	// if 4 sees line error =-1
+	if(pot4 < TOLERANCE && pot2 >= TOLERANCE && pot3 >= TOLERANCE && pot5 >= TOLERANCE && pot6 >= TOLERANCE && pot7 >= TOLERANCE){position =-1;}
+	// if 5 sees line error = 1
+	if(pot5 < TOLERANCE && pot2 >= TOLERANCE && pot3 >= TOLERANCE && pot4 >= TOLERANCE && pot6 >= TOLERANCE && pot7 >= TOLERANCE){position = 1;}
+	// if 5 & 6 see line error = 2
+	if(pot5 < TOLERANCE && pot6 <  TOLERANCE && pot2 >= TOLERANCE && pot3 >= TOLERANCE && pot4 >= TOLERANCE && pot7 >= TOLERANCE){position = 2;}
+	// if 6 sees line error = 3
+	if(pot6 < TOLERANCE && pot2 >= TOLERANCE && pot3 >= TOLERANCE && pot4 >= TOLERANCE && pot5 >= TOLERANCE && pot7 >= TOLERANCE){position = 3;}
+	// if 6 & 7 see line error = 4
+	if(pot6 < TOLERANCE && pot7 <  TOLERANCE && pot2 >= TOLERANCE && pot3 >= TOLERANCE && pot4 >= TOLERANCE && pot5 >= TOLERANCE){position = 4;}
+	// if 7 sees line error = 5
+	if(pot7 < TOLERANCE && pot2 >= TOLERANCE && pot3 >= TOLERANCE && pot4 >= TOLERANCE && pot5 >= TOLERANCE && pot6 >= TOLERANCE){position = 5;}
 
-	else if(
-		pot8 > TOLERANCE 
-		&& pot7 > TOLERANCE
+	setMotorSpeeds(Base - position , Base + position);
+	return position;
+}
+
+void pd(double kp, double kd, int base){
+	int current_pos = current_position();
+
+	if(
+		pot7 > TOLERANCE
 		&& pot6 > TOLERANCE 
 		&& pot5 > TOLERANCE
 		&& pot4 > TOLERANCE 
 		&& pot3 > TOLERANCE
 		&& pot2 > TOLERANCE 
-		&& pot1 > TOLERANCE
 		){
-		OCR0A = 0;
-		OCR0B = 0;
-		delay(1000)
+		error = *last_error;
 		}
-	setMotorSpeeds(BASE - position , BASE + position);
-	return position;
-}
+	else{error = 0 - current_pos;}
 
-void PID(double kp,double ki, double kd, int *last_error, int base){
-	int current_pos = current_position();
-	int error = 0 - current_pos;
-	int integral = i + error;
 	int derivative = error - *last_error;
-	int control = (kp * error)+ (ki * integral) + (kd * derivative);
-	setMotorSpeeds(BASE + control, BASE - control);
+	int control = (kp * error) + (kd * derivative);
+	setMotorSpeeds(base + control, base - control);
 	*last_error = error;
 }
 
@@ -181,18 +195,32 @@ int main(){
 
 	adc_init();
 	pwm_init();
-
 	while(1) {
-	ADCSRA |= (1<<6);	// start conversion
-		//sen_8(); 
+		ADCSRA |= (1<<6);	// start conversion
+
 		sen_7(); 
 		sen_6(); 
 		sen_5(); 
 		sen_4(); 
 		sen_3(); 
 		sen_2(); 
-		//sen_1(); 
+
 		ADCSRA &= ~(1<<6);		// stop conversion
 		current_position();
-		PID(Kp, Ki, Kd, 0, BASE);
+
+	if(position == -1 || position == 0 || position == 1){
+		Base = 70;
+		Kp = 15;
 	}
+	else if (position == -3 || position == -2 || position == 2 || position == 3){
+		Base = 60;
+		Kp = 19;
+	}
+	else{
+		Base = 35;
+		Kp = 6.8;
+
+	}
+	pd(Kp, Kd, Base);
+	}
+}
