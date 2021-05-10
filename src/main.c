@@ -27,38 +27,6 @@ void line_following_robot(void)
 {
     while(1)
     {
-        // // Test LEDs:
-        //     // Turn on:
-        // led_on(LED0); // on
-        // led_on(LED1); // on
-        // led_toggle(LED2); // on
-        // delay(1000);
-        //     // Turn off:
-        // led_off(LED0); // off
-        // led_toggle(LED1); // off
-        // led_toggle(LED2); // off
-
-        // Test motors:
-        // motor_move(10.0, reverse, MOTOR_A);
-        // motor_move(10.0, reverse, MOTOR_B);
-        // delay(1000);
-
-        // motor_move(10.0, forward, MOTOR_B);
-        // motor_move(10.0, forward, MOTOR_A);
-        // delay(1000);
-
-        // motor_move(40.0, reverse, MOTOR_A);
-        // motor_move(40.0, reverse, MOTOR_B);
-        // delay(1000);
-
-        // motor_move(40.0, forward, MOTOR_A);
-        // motor_move(40.0, forward, MOTOR_B);
-        // delay(1000);
-
-
-
-        // Complete track following:
-
         // Sample from all sensors:
         uint16_t sensor_readings[SENSORS_NUM];
         for(uint8_t s = 0; s < SENSORS_NUM; ++s)
@@ -97,7 +65,7 @@ void line_following_robot(void)
 		}
     }
 
-    // Do not allow this function to return!
+    // Do not allow this function to return, otherwise `main()` will end!
 }
 
 #ifdef ENV_AVR
