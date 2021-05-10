@@ -113,7 +113,7 @@ int main(){
 
 		if(pot1 < TOLERANCE)
 			{PORTE |= (1<<6);}
- 		if(pot2 < TOLERANCE)
+ 		else if(pot2 < TOLERANCE)
 			{PORTB |= (1<<0);}
 		else if(pot3 < TOLERANCE)
 			{PORTB |= (1<<1);}
