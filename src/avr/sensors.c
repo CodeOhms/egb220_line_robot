@@ -23,9 +23,11 @@ void sensor_init()
 
 
 
-    ADMUX |= (1<<6)|(1<<5); //5V ref 
-	ADCSRA |= (1<<7)|(1<<5)|(1<<4)|(1<<3)|(1<<2)|(1<<1);
-	// enable adc, enable auto-trigger, enable interrupt & interrupt flag, clock prescaler of 128, start converion, left adjusted
+    ADMUX |= (1<<REFS1)|(1<<REFS0)|(1<<ADLAR); //2.56V ref, left adjusted
+
+	// enable adc, clock prescaler of 128
+	ADCSRA |= (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+	ADCSRB = 0;
 }
 
 void sensor_close()
@@ -38,6 +40,8 @@ void sensor_close()
 uint16_t sensor_read(uint8_t current_sensor)
 {   
     // Read the sensor:
+    // adc_start();
+    ADCSRA |= (1<<6);
     uint16_t result = adc_read_regular();
 
     // Set up reading for the next sensor:

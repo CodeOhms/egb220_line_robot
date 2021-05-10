@@ -60,15 +60,11 @@ void line_following_robot(void)
         // Complete track following:
 
         // Sample from all sensors:
-		// adc_start();
-		ADCSRA |= (1<<6);
         uint16_t sensor_readings[SENSORS_NUM];
         for(uint8_t s = 0; s < SENSORS_NUM; ++s)
         {
             sensor_readings[s] = sensor_read(s);
         }
-		ADCSRA &= ~(1<<6);
-		// adc_stop();
 
         // Control logic:
         if (sensor_readings[3] < TOLERANCE && sensor_readings[4] < TOLERANCE) { 	// if 4 & 5 see line, go straight
