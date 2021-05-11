@@ -16,12 +16,13 @@ uint16_t pot2;
 uint16_t pot1;
 
 int Base;
+int Type;
 int error;
 int position = 0;
 int *last_error = 0;
 
 double Kp;
-double Kd = 0.85;
+double Kd = 0.95;
 
 void pwm_init(){
   TCCR0A |= (1<<WGM00);
@@ -149,13 +150,13 @@ int current_position(){
 	if(pot7 < TOLERANCE && pot2 >= TOLERANCE && pot3 >= TOLERANCE && pot4 >= TOLERANCE && pot5 >= TOLERANCE && pot6 >= TOLERANCE){position = 5;}
 
 
-  setMotorSpeeds( Base - position, Base + position);
+  //setMotorSpeeds( Base - position, Base + position);
   
 
   return position;
 }
 
-void PD(double kp, double kd, int *last_error, int base){
+void control(double kp, double kd, int *last_error, int base, int type){
   int current_pos = current_position();
 	if(
 		pot7 > TOLERANCE
@@ -165,16 +166,29 @@ void PD(double kp, double kd, int *last_error, int base){
 		&& pot3 > TOLERANCE
 		&& pot2 > TOLERANCE 
 		){
-		//error = *last_error;
-		OCR0A = 0;
-		OCR0B = 0;	
-		delay(1000);
+		error = *last_error;
+//		OCR0A = 0;
+//		OCR0B = 0;	
+//		delay(1000);
 		}
-  error = 0 - current_pos;
-  int derivative = error - *last_error;
-  int control = (kp * error) + (kd * derivative);
-  setMotorSpeeds(base + control, base - control);
-  *last_error = error;
+	if(type == 1){
+		if(pot4 < TOLERANCE && pot5 < TOLERANCE) { 	// if 4 & 5 see line, go straight
+			setMotorSpeeds(90, 90);
+		}		
+		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){	// if 5 sees the line and 4 does not SLIGHT LEFT
+			setMotorSpeeds(90, 89);
+		}
+		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){	// if 4 sees line & 5 does not SLIGHT RIGHT
+			setMotorSpeeds(89, 90);
+		}
+	}
+	else{
+	error = 0 - current_pos;
+	int derivative = error - *last_error;
+	int control = (kp * error) + (kd * derivative);
+	setMotorSpeeds(base + control, base - control);
+	*last_error = error;
+	}
 }
 
 int main(){
@@ -191,12 +205,14 @@ int main(){
     sen_2(); 
     current_position();
 	if(position == -1 || position == 0 || position == 1)
-		{Base = 75;
-		Kp = 2;}
-		
-	else{Base = 50;
-		Kp = 8.5;}
+	{
+		Type = 1;
+	}
 
-    PD(Kp, Kd, *last_error, Base);
+	else{Type = 0;
+		Base = 55;
+		Kp = 5;}
+
+    control(Kp, Kd, *last_error, Base, Type);
 	}
 }
