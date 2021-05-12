@@ -3,8 +3,8 @@
 #include <avr/interrupt.h>
 
 uint8_t _num_timing_counters = 0;
-uint8_t* _timing_counters = 0;
-uint8_t* _counters_limits  = 0;
+uint32_t* _timing_counters = 0;
+uint32_t* _counters_limits  = 0;
 // void (**_pwm_user_functions)(void) = 0;
 func_ptr_rvoid_t* _pwm_user_functions = 0;
 uint8_t* _user_functions_enabled = 0;
@@ -26,7 +26,7 @@ void interrupts_init_min(uint8_t num_timing_counters)
     _pwm_user_functions = calloc(num_timing_counters, sizeof(func_ptr_rvoid_t));
     _user_functions_enabled = calloc(num_timing_counters, sizeof(uint8_t));
 
-    #if BOOTLOADER == BOOTLOADER_CATERINA
+    #if BOOTLOADER == 0
     // Stop USB triggering interrupt. Left as on by Caterina bootloader :(.
     USBCON = 0;
     #endif
@@ -107,4 +107,9 @@ ISR(TIMER0_OVF_vect)
             *counter = 0;
         }
     }
+}
+
+double get_current_time_0(uint32_t overflow_count, uint16_t timer_prescaler)
+{
+    return ( overflow_count * 256.0 + TCNT0 ) * timer_prescaler / ((double) F_CPU);
 }

@@ -33,7 +33,6 @@ uint8_t fast_pwm_init(enum pwm_prescalers prescaler, uint8_t pwm_is_inverted)
     // Set up fast pwm with default TOP of 0xFF (255):
     TCCR0A |= (1<<WGM00);
     TCCR0A |= (1<<WGM01);
-    // TCCR0A &= ~(1<<WGM02);
 
     // Select prescaler:
     fast_pwm_select_prescaler(prescaler);    

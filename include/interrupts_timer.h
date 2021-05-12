@@ -41,4 +41,6 @@ uint8_t interrupts_set_data(uint8_t counter_index, uint8_t counter_limit,
 
 uint8_t interrupts_func_is_enabled(uint8_t function_index);
 
+double get_current_time();
+
 #endif //INTERRUPTS_TIMER_H
