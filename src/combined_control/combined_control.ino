@@ -16,7 +16,7 @@ uint16_t pot2;
 uint16_t pot1;
 
 int Base;
-int Type;
+int BangBang;
 int error;
 int position = 0;
 int *last_error = 0;
@@ -173,46 +173,48 @@ void control(double kp, double kd, int *last_error, int base, int type){
 		}
 	if(type == 1){
 		if(pot4 < TOLERANCE && pot5 < TOLERANCE) { 	// if 4 & 5 see line, go straight
-			setMotorSpeeds(90, 90);
+			setMotorSpeeds(85, 85);
 		}		
 		else if(pot4 >= TOLERANCE && pot5 < TOLERANCE){	// if 5 sees the line and 4 does not SLIGHT LEFT
-			setMotorSpeeds(90, 89);
+			setMotorSpeeds(85, 84);
 		}
 		else if(pot4 < TOLERANCE && pot5 >= TOLERANCE){	// if 4 sees line & 5 does not SLIGHT RIGHT
-			setMotorSpeeds(89, 90);
+			setMotorSpeeds(84, 85);
 		}
 	}
 	else{
-	error = 0 - current_pos;
-	int derivative = error - *last_error;
-	int control = (kp * error) + (kd * derivative);
-	setMotorSpeeds(base + control, base - control);
-	*last_error = error;
+		error = 0 - current_pos;
+		int derivative = error - *last_error;
+		int control = (kp * error) + (kd * derivative);
+		setMotorSpeeds(base + control, base - control);
+		*last_error = error;
 	}
 }
 
-int main(){
-
-  adc_init();
-  pwm_init();
-
-  while(1) {
+void read_sensors(){
     sen_7(); 
     sen_6(); 
     sen_5(); 
     sen_4(); 
     sen_3(); 
     sen_2(); 
-    current_position();
-	if(position == -1 || position == 0 || position == 1)
-	{
-		Type = 1;
-	}
+}
+int main(){
+	read_sensors();
+	adc_init();
+	pwm_init();
 
-	else{Type = 0;
-		Base = 55;
-		Kp = 5;}
+	while(1) {
+		current_position();
+		if(position == -1 || position == 0 || position == 1)
+		{
+			BangBang = 1;
+		}
 
-    control(Kp, Kd, *last_error, Base, Type);
+		else{BangBang = 0;
+			Base = 55;
+			Kp = 5.5;}
+
+    control(Kp, Kd, *last_error, Base, BangBang);
 	}
 }
