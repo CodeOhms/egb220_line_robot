@@ -5,7 +5,6 @@
 #include <avr/interrupt.h>
 
 #include "motors.h"
-#include "fast_pwm.h"
 
 void motor_init()
 {

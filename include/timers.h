@@ -7,10 +7,10 @@ enum timer_prescalers
 {
     no_clock_source,
     no_prescaler,
-    f_pwm_prescaler8,
-    f_pwm_prescaler64,
-    f_pwm_prescaler256,
-    f_pwm_prescaler1024,
+    timer_prescaler8,
+    timer_prescaler64,
+    timer_prescaler256,
+    timer_prescaler1024,
     extern_clock_falling,
     extern_clock_rising
 };
@@ -27,10 +27,10 @@ enum waveform_generation_mode
 
 enum compare_output_mode
 {
-    normal,
-    toggle,
-    clear,
-    set
+    com_normal,
+    com_toggle,
+    com_clear,
+    com_set
 };
 
 enum compare_output

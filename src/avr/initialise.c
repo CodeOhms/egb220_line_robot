@@ -3,8 +3,8 @@
 #include "peripherals.h"
 #include "initialise.h"
 #include "main.h"
+#include "timers.h"
 #include "interrupts_timer.h"
-#include "fast_pwm.h"
 #include "leds.h"
 #include "motors.h"
 #include "sensors.h"
@@ -13,8 +13,16 @@ void initialise(void)
 {
     // Start motors and pwm:
         // Start pwm:
-    fast_pwm_init(f_pwm_prescaler256, 0);
+            // Set up fast pwm with default TOP of 0xFF (255):
+    timer0_waveform_generation_mode(fast_pwm_0xFF);
+            // Select prescaler:
+    timer0_select_prescaler(timer_prescaler256);
 
+        // Setup motors with non-inverting pwm mode
+            // Motor A:
+        timer0_compare_output_mode(com_clear, comp_A);
+            // Motor B:
+        timer0_compare_output_mode(com_clear, comp_B);
         // Start motors:
     motor_init();
 

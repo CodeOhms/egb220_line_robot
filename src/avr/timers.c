@@ -1,6 +1,6 @@
 #include "timers.h"
 
-void fast_pwm_select_prescaler(enum timer_prescalers prescaler)
+void timer0_select_prescaler(enum timer_prescalers prescaler)
 {
     switch(prescaler)
     {
@@ -16,25 +16,25 @@ void fast_pwm_select_prescaler(enum timer_prescalers prescaler)
         TCCR0B |= (1<<CS00);
         break;
     
-    case f_pwm_prescaler8:
+    case timer_prescaler8:
         TCCR0B &= ~(1<<CS02);
         TCCR0B |= (1<<CS01);
         TCCR0B &= ~(1<<CS00);
         break;
     
-    case f_pwm_prescaler64:
+    case timer_prescaler64:
         TCCR0B &= ~(1<<CS02);
         TCCR0B |= (1<<CS01);
         TCCR0B |= (1<<CS00);
         break;
     
-    case f_pwm_prescaler256:
+    case timer_prescaler256:
         TCCR0B |= (1<<CS02);
         TCCR0B &= ~(1<<CS01);
         TCCR0B &= ~(1<<CS00);
         break;
     
-    case f_pwm_prescaler1024:
+    case timer_prescaler1024:
         TCCR0B |= (1<<CS02);
         TCCR0B &= ~(1<<CS01);
         TCCR0B |= (1<<CS00);
@@ -106,27 +106,28 @@ void timer0_compare_output_mode(enum compare_output_mode cop, enum compare_outpu
 
     switch(cop)
     {
-        case normal:
+        case com_normal:
             TCCR0A &= ~(1<<com0x0);
             TCCR0A &= ~(1<<(com0x0 + 1));
             break;
 
-        case toggle:
+        case com_toggle:
             TCCR0A |= (1<<com0x0);
             TCCR0A &= ~(1<<(com0x0 + 1));
             break;
 
-        case clear:
+        case com_clear:
             TCCR0A &= ~(1<<com0x0);
             TCCR0A |= (1<<(com0x0 + 1));
             break;
 
-        case set:
+        case com_set:
             TCCR0A |= (1<<com0x0);
             TCCR0A |= (1<<(com0x0 + 1));
             break;
 
         default:
+            break;
             // TODO: Something went wrong. Fatal error!
     }
 }
