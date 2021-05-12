@@ -1,7 +1,10 @@
 #include "timers.h"
 
-void timer0_select_prescaler(enum timer_prescalers prescaler)
+enum timer_prescalers _timer_prescaler_selected;
+
+void timer0_set_prescaler(enum timer_prescalers prescaler)
 {
+    _timer_prescaler_selected = prescaler;
     switch(prescaler)
     {
     case no_clock_source:
@@ -58,6 +61,40 @@ void timer0_select_prescaler(enum timer_prescalers prescaler)
     }
 }
 
+enum timer_prescalers timer0_get_prescaler()
+{
+    return _timer_prescaler_selected;
+}
+
+uint16_t timer_prescaler_enum_to_int(enum timer_prescalers prescaler)
+{
+    uint16_t prescaler_int = 0;
+    switch(prescaler)
+    {
+        case timer_prescaler8:
+            prescaler_int = 8;
+            break;
+        
+        case timer_prescaler64:
+            prescaler_int = 64;
+            break;
+        
+        case timer_prescaler256:
+            prescaler_int = 256;
+            break;
+        
+        case timer_prescaler1024:
+            prescaler_int = 1024;
+            break;
+        
+        default:
+            // TODO: Something went wrong. Fatal error!
+            break;
+    }
+
+    return prescaler_int;
+}
+
 void timer0_waveform_generation_mode(enum waveform_generation_mode wgm)
 {
     switch(wgm)
@@ -71,7 +108,7 @@ void timer0_waveform_generation_mode(enum waveform_generation_mode wgm)
         case fast_pwm_0xFF:
             TCCR0A |= (1<<WGM00);
             TCCR0A |= (1<<WGM01);
-            TCCR0A &= ~(1<<WGM02);
+            TCCR0B &= ~(1<<WGM02);
             break;
         case pwm_phase_correct_OCRx:
             break;

@@ -2,29 +2,25 @@
 
 #include <avr/interrupt.h>
 
-uint8_t _num_timing_counters = 0;
-uint32_t* _timing_counters = 0;
-uint32_t* _counters_limits  = 0;
-// void (**_pwm_user_functions)(void) = 0;
-func_ptr_rvoid_t* _pwm_user_functions = 0;
-uint8_t* _user_functions_enabled = 0;
+uint8_t _num_overflow_counters = 0;
+uint32_t* _overflow_counters = NULL;
+uint32_t* _time_limits  = NULL;
+func_ptr_rvoid_t* _timer_user_functions = NULL;
+uint8_t* _user_functions_enabled = NULL;
 
-void interrupts_init_min(uint8_t num_timing_counters)
+void interrupts_init_min(uint8_t num_overflow_counters)
 {    
-    _num_timing_counters = num_timing_counters;
+    _num_overflow_counters = num_overflow_counters;
 
     // Enable overflow interrupt.
-    TIMSK0 |= (1<<0);
-    // Select a prescaler of 256.
-    TCCR0B |=  (1<<2);
-    TCCR0B &= ~(1<<1);
-    TCCR0B &= ~(1<<0);
+    TIMSK0 |= (1<<TOIE0);
+    // Do NOT touch the prescaler, just in case something else is using it.
 
-    // Create the arrays and init to 0 (calloc inits all to 0).
-    _timing_counters = calloc(num_timing_counters, sizeof(uint8_t));
-    _counters_limits  = calloc(num_timing_counters, sizeof(uint8_t));
-    _pwm_user_functions = calloc(num_timing_counters, sizeof(func_ptr_rvoid_t));
-    _user_functions_enabled = calloc(num_timing_counters, sizeof(uint8_t));
+    // Allocate the arrays:
+    _overflow_counters = malloc(num_overflow_counters * sizeof(uint32_t));
+    _time_limits  = malloc(num_overflow_counters * sizeof(uint32_t));
+    _timer_user_functions = malloc(num_overflow_counters * sizeof(func_ptr_rvoid_t));
+    _user_functions_enabled = malloc(num_overflow_counters * sizeof(uint8_t));
 
     #if BOOTLOADER == 0
     // Stop USB triggering interrupt. Left as on by Caterina bootloader :(.
@@ -34,49 +30,57 @@ void interrupts_init_min(uint8_t num_timing_counters)
     sei();
 }
 
-void interrupts_init(uint8_t num_timing_counters, uint8_t* counters_limits, func_ptr_rvoid_t* pwm_user_functions, uint8_t* user_functions_enabled)
+void interrupts_init(uint8_t num_overflow_counters, double* time_limits, func_ptr_rvoid_t* timer_user_functions,
+                     uint8_t* user_functions_enabled)
 {
-    interrupts_init_min(num_timing_counters);
+    interrupts_init_min(num_overflow_counters);
 
-    // Copy the arrays.
-    for(uint8_t i = 0; i < num_timing_counters; ++i)
+    // Copy the arrays:
+    for(uint8_t i = 0; i < num_overflow_counters; ++i)
     {
-        _pwm_user_functions[i] = pwm_user_functions[i];
-        _counters_limits[i] = counters_limits[i];
+        _timer_user_functions[i] = timer_user_functions[i];
         _user_functions_enabled[i] = user_functions_enabled[i];
+
+    // Init counters to zero:
+        _overflow_counters[i] = 0;
+
+    // Convert time limits, in ms, to ticks:
+        // double prescaler_number = (double) timer_prescaler_enum_to_int(timer0_get_prescaler());
+        double prescaler_number = (double) 256;
+        _time_limits[i] = time_to_counter_8bit(time_limits[i], prescaler_number);
     }
 }
 
 void interrupts_close()
 {
-    _num_timing_counters = 0;
+    _num_overflow_counters = 0;
 
     // Disable overflow interrupt.
     TIMSK0 &= ~(1<<0);
     // Do NOT touch the prescaler, just in case something else is using it.
     // Free memory.
-    free(_timing_counters);
-    free(_counters_limits);
-    free(_pwm_user_functions);
+    free(_overflow_counters);
+    free(_time_limits);
+    free(_timer_user_functions);
     free(_user_functions_enabled);
 }
 
 void interrupts_set_counter(uint8_t counter_index, uint8_t counter_limit)
 {
-    _counters_limits[counter_index] = counter_limit;
+    _time_limits[counter_index] = counter_limit;
 }
 
 uint8_t interrupts_set_data(uint8_t counter_index, uint8_t counter_limit,
                        func_ptr_rvoid_t function,
                        uint8_t function_enabled)
 {
-    if(counter_index < 0 || counter_index +1 > _num_timing_counters)
+    if(counter_index < 0 || counter_index +1 > _num_overflow_counters)
     { // Index out of range!
         return 1;
     }
 
-    _counters_limits[counter_index] = counter_limit;
-    _pwm_user_functions[counter_index] = function;
+    _time_limits[counter_index] = counter_limit;
+    _timer_user_functions[counter_index] = function;
     if(function_enabled > 2)
     { // This must be a boolean (either 0 or 1).
         return 2;
@@ -88,28 +92,33 @@ uint8_t interrupts_set_data(uint8_t counter_index, uint8_t counter_limit,
 
 ISR(TIMER0_OVF_vect)
 {
-    // Check for timing trigger.
-    for(uint8_t i = 0; i < _num_timing_counters; ++i)
+    for(uint8_t i = 0; i < _num_overflow_counters; ++i)
     {
+        ++(_overflow_counters[i]);
+
         if(!_user_functions_enabled[i]) // Not enabled.
         {
             continue;
         }
 
-        uint8_t* counter = &_timing_counters[i];
-        uint8_t  limit = _counters_limits[i];
-        ++*counter;
-        if(*counter >= limit)
+    // Check for timing trigger, if so run function:
+        if((_overflow_counters[i] * 256 + TCNT0) >= _time_limits[i])
         {
-            // Call the associated function.
-            (*_pwm_user_functions[i])();
-            // Reset the counter.
-            *counter = 0;
+            // Call the associated function:
+            (*_timer_user_functions[i])();
+            // Reset the counter:
+            _overflow_counters[i] = 0;
         }
     }
 }
 
-double get_current_time_0(uint32_t overflow_count, uint16_t timer_prescaler)
+double counter_to_time_t0(uint32_t overflow_count, double timer_prescaler)
 {
-    return ( overflow_count * 256.0 + TCNT0 ) * timer_prescaler / ((double) F_CPU);
+    return ( overflow_count * 256.0 + TCNT0 ) * timer_prescaler/((double) F_CPU);
+}
+
+uint32_t time_to_counter_8bit(double time_ms, double timer_prescaler)
+{
+    // Convert the milliseconds to seconds in formula!
+    return (time_ms * 0.001) * ((double) F_CPU)/timer_prescaler;
 }

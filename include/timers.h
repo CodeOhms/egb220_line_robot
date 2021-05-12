@@ -40,7 +40,11 @@ enum compare_output
     comp_C
 };
 
-void timer0_select_prescaler(enum timer_prescalers prescaler);
+void timer0_set_prescaler(enum timer_prescalers prescaler);
+
+enum timer_prescalers timer0_get_prescaler();
+
+uint16_t timer_prescaler_enum_to_int(enum timer_prescalers prescaler);
 
 void timer0_waveform_generation_mode(enum waveform_generation_mode wgm);
 

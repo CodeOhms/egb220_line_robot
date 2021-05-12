@@ -1,8 +1,12 @@
 #include "initialise.h"
 #include "peripherals.h"
+#include "timers.h"
+#include "interrupts_timer.h"
 #include "leds.h"
 #include "motors.h"
 #include "sensors.h"
+
+#include <avr/interrupt.h>
 
 #define BASE 	100
 #define SLIGHT 	95
@@ -22,9 +26,22 @@ void delay(double ms)
 
 #endif //ENV_AVR
 
+void blink()
+{
+	PORTD ^= (1<<PORTD5);
+}
+
 // Use this as our "int main(void)" replacement.
 void line_following_robot(void)
 {
+	// Blink the blue LED once per second:
+	DDRD |= (1<<PORTD5);
+	double tim_lim[1] = { 1000 };
+	func_ptr_rvoid_t func[1] = { blink };
+	// void (*func[1]) = { blink };
+	uint8_t en[1] = { 1 };
+	interrupts_init(1, tim_lim, func, en);
+
     while(1)
     {
         // Sample from all sensors:
