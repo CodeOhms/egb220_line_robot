@@ -8,12 +8,11 @@
 
 #include <avr/interrupt.h>
 
-#define BASE 	100
-#define SLIGHT 	95
-#define MID		90 	
-#define BASE_PERCENT ((float) BASE/2.55)
-#define SLIGHT_PERCENT ((float) SLIGHT/2.55)
-#define TOLERANCE 180
+#define TOLERANCE 220
+#define BB_BASE 80
+#define PD_BASE 50
+#define BB_SLIGHT 79
+#define KP 5.5
 
 #ifdef ENV_AVR
 
@@ -26,7 +25,7 @@ void delay(double ms)
 
 // Global variables:
 int Base;
-int BangBang;
+int Type;
 int error = 0;
 int position = 0;
 int *last_error = 0;
@@ -110,19 +109,22 @@ void control(double kp, double kd, int *last_error, int base, int type)
     }
     if(type == 1){
         if(sensor_readings[3] < TOLERANCE && sensor_readings[4] < TOLERANCE) { 	// if 4 & 5 see line, go straight
-            // setMotorSpeeds(85, 85);
-            motor_move(85, forward, MOTOR_A);
-            motor_move(85, forward, MOTOR_B);
-        }		
+            // motor_move(85, forward, MOTOR_A);
+            // motor_move(85, forward, MOTOR_B);
+            motor_move(BB_BASE, forward, MOTOR_A);
+            motor_move(BB_BASE, forward, MOTOR_B);
+        }
         else if(sensor_readings[3] >= TOLERANCE && sensor_readings[4] < TOLERANCE){	// if 5 sees the line and 4 does not SLIGHT LEFT
-            // setMotorSpeeds(85, 84);
-            motor_move(85, forward, MOTOR_A);
-            motor_move(84, forward, MOTOR_B);
+            // motor_move(85, forward, MOTOR_A);
+            // motor_move(84, forward, MOTOR_B);
+            motor_move(BB_BASE, forward, MOTOR_A);
+            motor_move(BB_SLIGHT, forward, MOTOR_B);
         }
         else if(sensor_readings[3] < TOLERANCE && sensor_readings[4] >= TOLERANCE){	// if 4 sees line & 5 does not SLIGHT RIGHT
-            // setMotorSpeeds(84, 85);
-            motor_move(84, forward, MOTOR_A);
-            motor_move(85, forward, MOTOR_B);
+            // motor_move(84, forward, MOTOR_A);
+            // motor_move(85, forward, MOTOR_B);
+            motor_move(BB_SLIGHT, forward, MOTOR_A);
+            motor_move(BB_BASE, forward, MOTOR_B);
         }
     }
     else{
@@ -155,16 +157,16 @@ void line_following_robot(void)
         position = current_position(sensor_readings);
         if(position == -1 || position == 0 || position == 1)
         {
-            BangBang = 1;
+            Type = 1;
         }
         else
         {
-            BangBang = 0;
-            Base = 55;
-            Kp = 5.5;
+            Type = 0;
+            Base = PD_BASE;
+            Kp = KP;
         }
 
-        control(Kp, Kd, *last_error, Base, BangBang);
+        control(Kp, Kd, *last_error, Base, Type);
     }
 
     // Do not allow this function to return, otherwise `main()` will end!
