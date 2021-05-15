@@ -99,13 +99,12 @@ void adc_set_channel(uint8_t channel)
 
     // Clear the bits, then set them to prevent residue from old values:
     ADMUX &= ~(mask_ADMUX);
-
-    #ifdef MUX5
-
-        // Clear MUX5:
-    ADCSRB &= ~(1<<MUX5);
     // Set MUX bits 0 to 4:
     ADMUX |= channel & mask_ADMUX;
+
+    #ifdef MUX5
+        // Clear MUX5:
+    ADCSRB &= ~(1<<MUX5);
     // Set MUX bit 5 in seperate register:
     ADCSRB |= channel & 1<<MUX5;
     /*
@@ -113,12 +112,7 @@ void adc_set_channel(uint8_t channel)
     If the user code makes a mistake and has bits set that are outside of the 5th bit
     it will be ignored and this function will still operate as expected.
     */
-
-    #else
-    
-    ADMUX = unchanged | channel;
-
-    #endif
+    #endif //MUX5
 }
 
 uint8_t adc_is_left_aligned()
