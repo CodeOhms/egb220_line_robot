@@ -2,11 +2,11 @@
 
 #include <avr/interrupt.h>
 
-uint8_t _num_overflow_counters = 0;
-uint32_t* _overflow_counters = NULL;
-uint32_t* _time_limits  = NULL;
-func_ptr_rvoid_t* _timer_user_functions = NULL;
-uint8_t* _user_functions_enabled = NULL;
+volatile uint8_t _num_overflow_counters = 0;
+volatile uint32_t* _overflow_counters = NULL;
+volatile uint32_t* _time_limits  = NULL;
+volatile func_ptr_rvoid_t* _timer_user_functions = NULL;
+volatile uint8_t* _user_functions_enabled = NULL;
 
 void interrupts_init_min(uint8_t num_overflow_counters)
 {    
