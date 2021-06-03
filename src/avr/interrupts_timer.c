@@ -8,7 +8,7 @@ volatile uint32_t* _time_limits  = NULL;
 volatile func_ptr_rvoid_t* _timer_user_functions = NULL;
 volatile uint8_t* _user_functions_enabled = NULL;
 
-void interrupts_init_min(uint8_t num_overflow_counters)
+void interrupts_timer_init_min(uint8_t num_overflow_counters)
 {    
     _num_overflow_counters = num_overflow_counters;
 
@@ -21,19 +21,12 @@ void interrupts_init_min(uint8_t num_overflow_counters)
     _time_limits  = malloc(num_overflow_counters * sizeof(uint32_t));
     _timer_user_functions = malloc(num_overflow_counters * sizeof(func_ptr_rvoid_t));
     _user_functions_enabled = malloc(num_overflow_counters * sizeof(uint8_t));
-
-    #if BOOTLOADER == 0
-    // Stop USB triggering interrupt. Left as on by Caterina bootloader :(.
-    USBCON = 0;
-    #endif
-
-    sei();
 }
 
-void interrupts_init(uint8_t num_overflow_counters, double* time_limits, func_ptr_rvoid_t* timer_user_functions,
+void interrupts_timer_init(uint8_t num_overflow_counters, double* time_limits, func_ptr_rvoid_t* timer_user_functions,
                      uint8_t* user_functions_enabled)
 {
-    interrupts_init_min(num_overflow_counters);
+    interrupts_timer_init_min(num_overflow_counters);
 
     // Copy the arrays:
     for(uint8_t i = 0; i < num_overflow_counters; ++i)
@@ -51,7 +44,7 @@ void interrupts_init(uint8_t num_overflow_counters, double* time_limits, func_pt
     }
 }
 
-void interrupts_close()
+void interrupts_timer_close()
 {
     _num_overflow_counters = 0;
 
@@ -65,12 +58,12 @@ void interrupts_close()
     free(_user_functions_enabled);
 }
 
-void interrupts_set_counter(uint8_t counter_index, uint8_t counter_limit)
+void interrupts_timer_set_counter(uint8_t counter_index, uint8_t counter_limit)
 {
     _time_limits[counter_index] = counter_limit;
 }
 
-uint8_t interrupts_set_data(uint8_t counter_index, uint8_t counter_limit,
+uint8_t interrupts_timer_set_data(uint8_t counter_index, uint8_t counter_limit,
                        func_ptr_rvoid_t function,
                        uint8_t function_enabled)
 {

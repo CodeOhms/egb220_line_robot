@@ -19,26 +19,26 @@ timer interrupt needs to trigger the corresponding command of the counter.
 timer (also known as a function table).
 */
 typedef void(*func_ptr_rvoid_t)(void);
-void interrupts_init(uint8_t num_overflow_counters, double* time_limits,
+void interrupts_timer_init(uint8_t num_overflow_counters, double* time_limits,
                      func_ptr_rvoid_t* timer_user_functions,
                      uint8_t* user_functions_enabled);
 // Provide alt init function to set counter limits and user functions later.
-void interrupts_init_min(uint8_t num_overflow_counters);
+void interrupts_timer_init_min(uint8_t num_overflow_counters);
 
-void interrupts_close();
+void interrupts_timer_close();
 
-void interrupts_set_counter(uint8_t counter_index, uint8_t counter_limit);
+void interrupts_timer_set_counter(uint8_t counter_index, uint8_t counter_limit);
 
 /*
 Changes the corresponding values for a specific set of counter info
 using the given index.
-Call the `interrupts_init_min()` function first!
+Call the `interrupts_timer_init_min()` function first!
 */
-uint8_t interrupts_set_data(uint8_t counter_index, uint8_t counter_limit,
+uint8_t interrupts_timer_set_data(uint8_t counter_index, uint8_t counter_limit,
                          func_ptr_rvoid_t function,
                         uint8_t function_enabled);
 
-uint8_t interrupts_func_is_enabled(uint8_t function_index);
+uint8_t interrupts_timer_func_is_enabled(uint8_t function_index);
 
 double counter_to_time_t0();
 

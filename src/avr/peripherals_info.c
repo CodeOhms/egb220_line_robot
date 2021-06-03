@@ -83,14 +83,23 @@ const leds_info _leds =
 
 const uint8_t _channels[SENSORS_NUM] =
 {
+    // 0b000100, // ADC4
+    // 0b000101, // ADC5
+    // 0b000110, // ADC6
+    // 0b000111, // ADC7
+    // 0b100011, // ADC11
+    // 0b100010, // ADC10
+    // 0b100001, // ADC9
+    // 0b100000, // ADC8
+
+    0b000000, // ADC0
+    0b000001, // ADC1
     0b000100, // ADC4
     0b000101, // ADC5
-    0b000110, // ADC6
-    0b000111, // ADC7
+    0b100000, // ADC8
+    0b100001, // ADC9
     0b100011, // ADC11
     0b100010, // ADC10
-    0b100001, // ADC9
-    0b100000, // ADC8
 };
 
 #undef _SFR_IO8

@@ -6,7 +6,8 @@
 	],
 	"settings": {
 		"files.associations": {
-			"initialise.h": "c"
+			"initialise.h": "c",
+			"interrupts_timer.h": "c"
 		}
 	}
 }
